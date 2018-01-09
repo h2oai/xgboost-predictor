@@ -107,6 +107,45 @@ public class GBTree extends GBBase {
         return leafIndex;
     }
 
+    /**
+     * Predict contributions for all classes for given number of trees
+     * @param feat        feature vector
+     * @param ntree_limit limit the number of trees used in prediction
+     * @return array with feature weights (nFeatures + 1 wide) where right-most column is the sum
+     */
+    public double[][] predictContribution(FVec feat, int ntree_limit) {
+        // need to do seperate predictions for each group (class) in the classifier
+        double[][] preds = new double[mparam.num_output_group][mparam.num_feature+1];
+        for (int gid = 0; gid < mparam.num_output_group; gid++) {
+            // each class is predicted independently
+            double[] contrib = calculateContributions(feat, gid, 0, ntree_limit);
+            System.arraycopy(contrib, 0, preds[gid], 0, contrib.length);
+        }
+        return preds;
+    }
+
+    /**
+     * Calculate the contribution of a given class for a given number of trees
+     * @param feat          feature vector
+     * @param bst_group     class group
+     * @param root_index    tree root index
+     * @param ntree_limit   number of trees limit
+     * @return array with feature weights (nFeatures + 1 wide) where right-most column is the sum
+     */
+    private double[] calculateContributions(FVec feat, int bst_group, int root_index, int ntree_limit) {
+        RegTree[] trees = _groupTrees[bst_group];
+        int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
+
+        double[] psum = new double[mparam.num_feature+1];
+        for (int i = 0; i < treeleft; i++) {
+            double[] contrib = trees[i].getFeatureContributions(feat, root_index);
+            for (int j = 0; j < contrib.length; j++) {
+                psum[j] += contrib[j];
+            }
+        }
+
+        return psum;
+    }
 
     static class ModelParam implements Serializable {
         /*! \brief number of trees */

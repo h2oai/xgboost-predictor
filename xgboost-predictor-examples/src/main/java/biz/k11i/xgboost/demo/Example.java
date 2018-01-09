@@ -79,11 +79,11 @@ public class Example {
         int count = 0;
         for (SimpleEntry<Integer, FVec> pair : data) {
 
-            int[] leafIndexes = predictor.predictContribution(pair.getValue());
+            double[][] contributions = predictor.predictContribution(pair.getValue());
 
-            System.out.printf("leafIndexes[%d]: %s%s",
+            System.out.printf("contributions[%d]: %s%s",
                     count++,
-                    Arrays.toString(leafIndexes),
+                    Arrays.toString(contributions),
                     System.lineSeparator());
         }
     }
