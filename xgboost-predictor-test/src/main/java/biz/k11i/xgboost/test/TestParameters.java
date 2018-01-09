@@ -51,6 +51,19 @@ public final class TestParameters {
                                 PredictionTask.predictLeaf(),
                                 PredictionTask.predictLeafWithNTree(2)),
 
+                // predictContribution methods
+                new TestParameter.Builder()
+                        .modelType("gbtree")
+                        .modelNames(
+                                "v47/binary-logistic",
+                                "v47/binary-logitraw",
+                                "v47/multi-softmax",
+                                "v47/multi-softprob")
+                        .testData("agaricus.txt.0.test", false)
+                        .tasks(
+                                PredictionTask.predictContribution(),
+                                PredictionTask.predictContributionWithNTree(2)),
+
                 // predictSingle method
                 new TestParameter.Builder()
                         .modelType("gbtree")

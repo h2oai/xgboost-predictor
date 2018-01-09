@@ -119,6 +119,24 @@ public abstract class PredictionTestBase {
                 }
             };
         }
+
+        public static PredictionTask predictContribution() {
+            return new PredictionTask("contribution") {
+                @Override
+                double[] predict(Predictor predictor, FVec feat) {
+                    return toDoubleArray(predictor.predictContribution(feat));
+                }
+            };
+        }
+
+        public static PredictionTask predictContributionWithNTree(final int ntree_limit) {
+            return new PredictionTask("contribution_ntree") {
+                @Override
+                double[] predict(Predictor predictor, FVec feat) {
+                    return toDoubleArray(predictor.predictContribution(feat, ntree_limit));
+                }
+            };
+        }
     }
 
     protected void verify(
