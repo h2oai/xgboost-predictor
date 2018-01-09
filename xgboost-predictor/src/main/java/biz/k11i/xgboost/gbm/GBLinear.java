@@ -62,7 +62,7 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public int[] predictContribution(FVec feat, int ntree_limit) {
+    public double[][] predictContribution(FVec feat, int ntree_limit) {
         throw new UnsupportedOperationException("gblinear does not support predict feature contribution");
     }
 

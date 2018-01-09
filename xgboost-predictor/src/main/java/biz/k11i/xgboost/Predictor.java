@@ -246,7 +246,7 @@ public class Predictor implements Serializable {
      * @param feat feature vector
      * @return leaf indexes
      */
-    public int[] predictContribution(FVec feat) {
+    public double[][] predictContribution(FVec feat) {
         return predictContribution(feat, 0);
     }
 
@@ -257,8 +257,8 @@ public class Predictor implements Serializable {
      * @param ntree_limit limit
      * @return leaf indexes
      */
-    public int[] predictContribution(FVec feat,
-                                     int ntree_limit) {
+    public double[][] predictContribution(FVec feat,
+                                          int ntree_limit) {
         return gbm.predictContribution(feat, ntree_limit);
     }
 

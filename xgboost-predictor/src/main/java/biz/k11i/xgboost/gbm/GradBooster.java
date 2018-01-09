@@ -76,7 +76,7 @@ public interface GradBooster extends Serializable {
      * @param ntree_limit limit the number of trees used in prediction
      * @return predicted leaf indexes
      */
-    int[] predictContribution(FVec feat, int ntree_limit);
+    double[][] predictContribution(FVec feat, int ntree_limit);
 }
 
 abstract class GBBase implements GradBooster {

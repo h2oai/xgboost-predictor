@@ -96,6 +96,10 @@ public class HowToUseXgboostPredictor {
         int[] leafIndexes = predictor.predictLeaf(fVecDense);
 
         // leafIndexes[i] has a leaf index of i-th tree
+        
+        // Predict feature contributions
+        double[] contribution = predictor.predictContributions(fVecDense);
+        // right-most column contains sum from all features
     }
 }
 ```
