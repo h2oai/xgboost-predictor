@@ -23,6 +23,8 @@ public class Example {
         predictAndLogLoss(predictor, data);
 
         predictLeafIndex(predictor, data);
+
+        predictContribution(predictor, data);
     }
 
     /**
@@ -59,6 +61,25 @@ public class Example {
         for (SimpleEntry<Integer, FVec> pair : data) {
 
             int[] leafIndexes = predictor.predictLeaf(pair.getValue());
+
+            System.out.printf("leafIndexes[%d]: %s%s",
+                    count++,
+                    Arrays.toString(leafIndexes),
+                    System.lineSeparator());
+        }
+    }
+
+    /**
+     * Predicts feature contribution of each tree.
+     *
+     * @param predictor Predictor
+     * @param data test data
+     */
+    static void predictContribution(Predictor predictor, List<SimpleEntry<Integer, FVec>> data) {
+        int count = 0;
+        for (SimpleEntry<Integer, FVec> pair : data) {
+
+            int[] leafIndexes = predictor.predictContribution(pair.getValue());
 
             System.out.printf("leafIndexes[%d]: %s%s",
                     count++,

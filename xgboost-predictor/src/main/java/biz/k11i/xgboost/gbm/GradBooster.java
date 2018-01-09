@@ -68,6 +68,15 @@ public interface GradBooster extends Serializable {
      * @return predicted leaf indexes
      */
     int[] predictLeaf(FVec feat, int ntree_limit);
+
+    /**
+     * Predicts the feature contribution of each tree. This is only valid in gbtree predictor.
+     *
+     * @param feat        feature vector
+     * @param ntree_limit limit the number of trees used in prediction
+     * @return predicted leaf indexes
+     */
+    int[] predictContribution(FVec feat, int ntree_limit);
 }
 
 abstract class GBBase implements GradBooster {
