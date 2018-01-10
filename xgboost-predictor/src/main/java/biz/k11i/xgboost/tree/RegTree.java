@@ -16,7 +16,6 @@ public class RegTree implements Serializable {
 
     /**
      * Loads model from stream.
-     * Loads model from stream.
      *
      * @param reader input stream
      * @throws IOException If an I/O error occurs
@@ -97,9 +96,17 @@ public class RegTree implements Serializable {
             num_deleted = reader.readInt();
             max_depth = reader.readInt();
             num_feature = reader.readInt();
-
             size_leaf_vector = reader.readInt();
             reserved = reader.readIntArray(31);
+        }
+
+        public String toString() {
+            return "Number of roots: " + num_roots + ", "
+                    + "Number of nodes: " + num_nodes + ", "
+                    + "Number of nodes deleted: " + num_deleted + ", "
+                    + "Max tree depth: " + max_depth + ", "
+                    + "Number of features: " + num_feature + ", "
+                    + "Size of leaf vector: " + size_leaf_vector;
         }
     }
 
@@ -167,10 +174,9 @@ public class RegTree implements Serializable {
     // extend our decision path with a fraction of one and zero extensions
     private void ExtendPath(PathElement[] parent_unique_path, int unique_path_start, int unique_depth,
                             float zero_fraction, float one_fraction, int feature_index) {
-        parent_unique_path[unique_path_start+unique_depth].feature_index = feature_index;
-        parent_unique_path[unique_path_start+unique_depth].zero_fraction = zero_fraction;
-        parent_unique_path[unique_path_start+unique_depth].one_fraction = one_fraction;
-        parent_unique_path[unique_path_start+unique_depth].pweight = (unique_depth == 0 ? 1.0f : 0.0f);
+        parent_unique_path[unique_path_start+unique_depth] = new PathElement(feature_index,
+                zero_fraction, one_fraction, (unique_depth == 0 ? 1.0f : 0.0f));
+
         for (int i = unique_depth - 1; i >= 0; i--) {
             parent_unique_path[unique_path_start+i+1].pweight += one_fraction *
                     parent_unique_path[unique_path_start+i].pweight * (i + 1)
@@ -241,6 +247,13 @@ public class RegTree implements Serializable {
         float zero_fraction;
         float one_fraction;
         float pweight;
+
+        PathElement(int f, float z, float o, float w) {
+            feature_index = f;
+            zero_fraction = z;
+            one_fraction = o;
+            pweight = w;
+        }
     }
 
     // recursive computation of SHAP values for a decision tree
@@ -332,8 +345,10 @@ public class RegTree implements Serializable {
         out_contribs[out_contribs.length-1] += base_value / total_cover;
 
         // Preallocate space for the unique path data
+        System.out.println("Model parameters "+param);
         final int maxd = param.max_depth + 1;
         PathElement[] unique_path_data = new PathElement[(maxd * (maxd + 1)) / 2];
+        System.out.println("unique_path_data length "+unique_path_data.length + " due to depth+1 of  "+maxd);
 
         // recursively call tree traversing. will modify out_contribs
         TreeShap(feat, out_contribs, root_id, 0, 0, unique_path_data, 1,

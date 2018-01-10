@@ -7,6 +7,7 @@ import biz.k11i.xgboost.util.FVec;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,7 +36,7 @@ public abstract class PredictionTestBase {
         }
     }
 
-    public static abstract class PredictionTask {
+    public static abstract class PredictionTask<T> {
         final String name;
         private final String expectationSuffix;
 
@@ -56,7 +57,7 @@ public abstract class PredictionTestBase {
             return expectationSuffix;
         }
 
-        abstract double[] predict(Predictor predictor, FVec feat);
+        abstract T predict(Predictor predictor, FVec feat);
 
         private static double[] toDoubleArray(int[] values) {
             double[] result = new double[values.length];
@@ -123,8 +124,8 @@ public abstract class PredictionTestBase {
         public static PredictionTask predictContribution() {
             return new PredictionTask("contribution") {
                 @Override
-                double[] predict(Predictor predictor, FVec feat) {
-                    return toDoubleArray(predictor.predictContribution(feat));
+                double[][] predict(Predictor predictor, FVec feat) {
+                    return predictor.predictContribution(feat);
                 }
             };
         }
@@ -132,8 +133,8 @@ public abstract class PredictionTestBase {
         public static PredictionTask predictContributionWithNTree(final int ntree_limit) {
             return new PredictionTask("contribution_ntree") {
                 @Override
-                double[] predict(Predictor predictor, FVec feat) {
-                    return toDoubleArray(predictor.predictContribution(feat, ntree_limit));
+                double[][] predict(Predictor predictor, FVec feat) {
+                    return predictor.predictContribution(feat, ntree_limit);
                 }
             };
         }
@@ -154,17 +155,17 @@ public abstract class PredictionTestBase {
         List<double[]> expectedDataList = _expectedData.load();
 
         for (int i = 0; i < testDataList.size(); i++) {
-            double[] predicted = predictionTask.predict(predictor, testDataList.get(i));
+            final Object predicted = predictionTask.predict(predictor, testDataList.get(i));
 
             assertThat(
                     String.format("result array length: %s #%d", context, i),
-                    predicted.length,
+                    Array.getLength(predicted),
                     is(expectedDataList.get(i).length));
 
-            for (int j = 0; j < predicted.length; j++) {
+            for (int j = 0; j < Array.getLength(predicted); j++) {
                 assertThat(
                         String.format("prediction value: %s #%d[%d]", context, i, j),
-                        predicted[j], closeTo(expectedDataList.get(i)[j], 1e-5));
+                        (double)Array.get(predicted, j), closeTo(expectedDataList.get(i)[j], 1e-5));
             }
         }
     }

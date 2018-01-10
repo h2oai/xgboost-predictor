@@ -51,7 +51,7 @@ public final class TestParameters {
                                 PredictionTask.predictLeaf(),
                                 PredictionTask.predictLeafWithNTree(2)),
 
-                // predictContribution methods
+                // predictContribution
                 new TestParameter.Builder()
                         .modelType("gbtree")
                         .modelNames(
