@@ -93,7 +93,7 @@ subprojects {
     createReleaseTag.dependsOn bintrayUpload
 
     task checkJavaVersion << {
-        if (!JavaVersion.current().isJava7()) {
+        if (!JavaVersion.current().isJava7Compatible()) {
             String message = "ERROR: Java 7 required but " +
                     JavaVersion.current() +
                     " found. Change your JAVA_HOME environment variable."
