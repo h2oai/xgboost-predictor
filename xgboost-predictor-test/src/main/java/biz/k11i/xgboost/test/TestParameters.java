@@ -56,9 +56,7 @@ public final class TestParameters {
                         .modelType("gbtree")
                         .modelNames(
                                 "v47/binary-logistic",
-                                "v47/binary-logitraw",
-                                "v47/multi-softmax",
-                                "v47/multi-softprob")
+                                "v47/binary-logitraw")
                         .testData("agaricus.txt.0.test", false)
                         .tasks(
                                 PredictionTask.predictContribution(),

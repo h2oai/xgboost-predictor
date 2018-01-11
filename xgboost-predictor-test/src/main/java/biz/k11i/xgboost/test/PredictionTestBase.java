@@ -13,6 +13,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 public abstract class PredictionTestBase {
 
@@ -155,17 +156,48 @@ public abstract class PredictionTestBase {
         List<double[]> expectedDataList = _expectedData.load();
 
         for (int i = 0; i < testDataList.size(); i++) {
-            final Object predicted = predictionTask.predict(predictor, testDataList.get(i));
+            Object predicted = predictionTask.predict(predictor, testDataList.get(i));
+            // detect the number of dimensions of the predicted array
+            String predClass = predicted.getClass().getName();
+            int nDim = 0;
+            for(int c = 0; c < predClass.length(); c++) {
+                if(predClass.charAt(c) == '[') {
+                    nDim++;
+                }
+            }
 
-            assertThat(
-                    String.format("result array length: %s #%d", context, i),
-                    Array.getLength(predicted),
-                    is(expectedDataList.get(i).length));
+            // we can only handle one or two dimensional arrays
+            assertThat(String.format("prediction array dimensions: %s #%d", context, nDim),
+                    nDim, lessThan(3));
 
-            for (int j = 0; j < Array.getLength(predicted); j++) {
+            if (nDim == 1) {
+                // we have a single dimensional array -- is the case of most predictions (one value per feature set)
                 assertThat(
-                        String.format("prediction value: %s #%d[%d]", context, i, j),
-                        (double)Array.get(predicted, j), closeTo(expectedDataList.get(i)[j], 1e-5));
+                        String.format("result array length: %s #%d", context, i),
+                        Array.getLength(predicted),
+                        is(expectedDataList.get(i).length));
+
+                for (int j = 0; j < Array.getLength(predicted); j++) {
+                    assertThat(
+                            String.format("prediction value: %s #%d[%d]", context, i, j),
+                            (double) Array.get(predicted, j), closeTo(expectedDataList.get(i)[j], 1e-5));
+                }
+            } else if(nDim == 2) {
+                // match the prediction dimensions sizes
+                assertThat(
+                        String.format("result array length: %s #%d", context, i),
+                        Array.getLength(Array.get(predicted,0)),
+                        is(expectedDataList.get(i).length));
+                for (int j = 0; j < Array.getLength(predicted); j++) {
+                    for (int k = 0; k < Array.getLength(predicted); k++) {
+                        assertThat(
+                                String.format("prediction value: %s #%d[%d]", context, i, j),
+                                (double) Array.get(Array.get(predicted, j), k),
+                                closeTo(expectedDataList.get(i)[k], 1e-5));
+                    }
+                }
+            } else {
+                System.err.println("Unsupported number of dimensions in predicted array: "+nDim);
             }
         }
     }

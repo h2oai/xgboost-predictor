@@ -32,6 +32,29 @@ public class RegTree implements Serializable {
         for (int i = 0; i < param.num_nodes; i++) {
             stats[i] = new RTreeNodeStat(reader);
         }
+
+        // if the tree was loaded with no depth, calculate it and replace the parameter values
+        if (param.max_depth == 0) {
+            // update the parameters by calculating the tree depth
+            param = new Param(param, this);
+        }
+    }
+
+    /**
+     * Recursively find the depth of tree
+     * @param root_id: root index of the tree
+     * @param seed_depth: depth of tree above the root
+     * @return depth of the tree
+     */
+    private int getTreeDepth(int root_id, int seed_depth) {
+        // by default, the depth is the seed depth + 1 (depth 1 if this is a node)
+        int depth = seed_depth+1;
+        if (!nodes[root_id]._isLeaf) {
+            int left = getTreeDepth(nodes[root_id].cleft_, depth);
+            int right = getTreeDepth(nodes[root_id].cright_, depth);
+            depth = Math.max(left, right);
+        }
+        return depth;
     }
 
     /**
@@ -98,6 +121,21 @@ public class RegTree implements Serializable {
             num_feature = reader.readInt();
             size_leaf_vector = reader.readInt();
             reserved = reader.readIntArray(31);
+        }
+
+        /**
+         * Using previous parameter values, create new ones by calculating the tree depth
+         * @param previous  previous parameter values
+         * @param tree      loaded tree
+         */
+        Param(Param previous, RegTree tree) {
+            num_roots = previous.num_roots;
+            num_nodes = previous.num_nodes;
+            num_deleted = previous.num_deleted;
+            max_depth = tree.getTreeDepth(0, 0);
+            num_feature = previous.num_feature;
+            size_leaf_vector = previous.size_leaf_vector;
+            reserved = previous.reserved;
         }
 
         public String toString() {
@@ -345,10 +383,8 @@ public class RegTree implements Serializable {
         out_contribs[out_contribs.length-1] += base_value / total_cover;
 
         // Preallocate space for the unique path data
-        System.out.println("Model parameters "+param);
         final int maxd = param.max_depth + 1;
         PathElement[] unique_path_data = new PathElement[(maxd * (maxd + 1)) / 2];
-        System.out.println("unique_path_data length "+unique_path_data.length + " due to depth+1 of  "+maxd);
 
         // recursively call tree traversing. will modify out_contribs
         TreeShap(feat, out_contribs, root_id, 0, 0, unique_path_data, 1,
