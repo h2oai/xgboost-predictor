@@ -1,6 +1,6 @@
 xgboost-predictor-java
 ======================
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-parser/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-parser)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-predictor/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-predictor)
 
 Pure Java implementation of [XGBoost](https://github.com/dmlc/xgboost/) predictor for online prediction tasks.
 
