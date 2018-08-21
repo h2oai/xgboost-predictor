@@ -1,8 +1,6 @@
 xgboost-predictor-java
 ======================
-
-[![Build Status](https://travis-ci.org/komiya-atsushi/xgboost-predictor-java.svg?branch=master)](https://travis-ci.org/komiya-atsushi/xgboost-predictor-java)
-[![Download](https://api.bintray.com/packages/komiya-atsushi/maven/xgboost-predictor/images/download.svg) ](https://bintray.com/komiya-atsushi/maven/xgboost-predictor/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-parser/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.h2o/xgboost-parser)
 
 Pure Java implementation of [XGBoost](https://github.com/dmlc/xgboost/) predictor for online prediction tasks.
 
