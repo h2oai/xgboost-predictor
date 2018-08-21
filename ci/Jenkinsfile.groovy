@@ -19,7 +19,7 @@ def makeOpts = 'CI=1'
 node ('master') {
     stage('Checkout') {
         cleanWs()
-        def scmEnv = git branch: 'mr/build/pipeline', credentialsId: 'd57016f6-d172-43ea-bea1-1d6c7c1747a0', url: 'https://github.com/h2oai/xgboost-predictor'
+        def scmEnv = checkout scm
         env.BRANCH_NAME = scmEnv.GIT_BRANCH.replaceAll('origin/', '')
         final def version = sh(script: 'cat gradle.properties | grep version | sed "s/version=//"', returnStdout: true).trim()
 
