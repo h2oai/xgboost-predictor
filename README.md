@@ -14,18 +14,11 @@ Pure Java implementation of [XGBoost](https://github.com/dmlc/xgboost/) predicto
 If you use **Maven**:
 
 ```xml
-<repositories>
-  <repository>
-    <id>bintray-komiya-atsushi-maven</id>
-    <url>http://dl.bintray.com/komiya-atsushi/maven</url>
-  </repository>
-</repositories>
-
 <dependencies>
   <dependency>
-    <groupId>biz.k11i</groupId>
+    <groupId>ai.h2o</groupId>
     <artifactId>xgboost-predictor</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
   </dependency>
 </dependencies>
 ```
@@ -34,22 +27,21 @@ Or **Gradle**:
 
 ```groovy
 repositories {
-    // Use jcenter instead of mavenCentral
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile group: 'biz.k11i', name: 'xgboost-predictor', version: '0.3.0'
+    compile group: 'ai.h2o', name: 'xgboost-predictor', version: '0.3.1'
 }
 ```
 
 Or **sbt**:
 
 ```scala
-resolvers += Resolver.jcenterRepo
+resolvers += DefaultMavenRepository
 
 libraryDependencies ++= Seq(
-  "biz.k11i" % "xgboost-predictor" % "0.3.0"
+  "ai.h2o" % "xgboost-predictor" % "0.3.1"
 )
 ```
 
@@ -99,11 +91,6 @@ public class HowToUseXgboostPredictor {
     }
 }
 ```
-
-
-## Apache Spark integration
-
-See detail [xgboost-predictor-spark](https://github.com/komiya-atsushi/xgboost-predictor-java/tree/master/xgboost-predictor-spark).
 
 
 # Benchmark
