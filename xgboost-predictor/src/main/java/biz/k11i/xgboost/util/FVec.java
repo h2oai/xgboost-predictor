@@ -13,7 +13,7 @@ public interface FVec extends Serializable {
      * @param index index
      * @return value
      */
-    double fvalue(int index);
+    float fvalue(int index);
 
     class Transformer {
         private Transformer() {
@@ -62,13 +62,13 @@ class FVecMapImpl implements FVec {
     }
 
     @Override
-    public double fvalue(int index) {
+    public float fvalue(int index) {
         Number number = values.get(index);
         if (number == null) {
-            return Double.NaN;
+            return Float.NaN;
         }
 
-        return number.doubleValue();
+        return number.floatValue();
     }
 }
 
@@ -83,14 +83,14 @@ class FVecArrayImpl {
         }
 
         @Override
-        public double fvalue(int index) {
+        public float fvalue(int index) {
             if (values.length <= index) {
-                return Double.NaN;
+                return Float.NaN;
             }
 
-            double result = values[index];
+            float result = values[index];
             if (treatsZeroAsNA && result == 0) {
-                return Double.NaN;
+                return Float.NaN;
             }
 
             return result;
@@ -107,17 +107,17 @@ class FVecArrayImpl {
         }
 
         @Override
-        public double fvalue(int index) {
+        public float fvalue(int index) {
             if (values.length <= index) {
-                return Double.NaN;
+                return Float.NaN;
             }
 
-            double result = values[index];
+            final double result = values[index];
             if (treatsZeroAsNA && result == 0) {
-                return Double.NaN;
+                return Float.NaN;
             }
 
-            return values[index];
+            return (float) result;
         }
     }
 }

@@ -59,7 +59,7 @@ public class RegTree implements Serializable {
      * @param root_id starting root index
      * @return leaf value
      */
-    public double getLeafValue(FVec feat, int root_id) {
+    public float getLeafValue(FVec feat, int root_id) {
         Node n = nodes[root_id];
         while (!n._isLeaf) {
             n = nodes[n.next(feat)];
@@ -111,8 +111,8 @@ public class RegTree implements Serializable {
         // split feature index, left split or right split depends on the highest bit
         final /* unsigned */ int sindex_;
         // extra info (leaf_value or split_cond)
-        final double leaf_value;
-        final double split_cond;
+        final float leaf_value;
+        final float split_cond;
 
         private final int _defaultNext;
         private final int _splitIndex;
@@ -155,7 +155,7 @@ public class RegTree implements Serializable {
         }
 
         int next(FVec feat) {
-            double fvalue = feat.fvalue(_splitIndex);
+            float fvalue = feat.fvalue(_splitIndex);
             if (fvalue != fvalue) {  // is NaN?
                 return _defaultNext;
             }

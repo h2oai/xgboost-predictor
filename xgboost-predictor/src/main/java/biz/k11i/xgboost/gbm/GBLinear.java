@@ -26,8 +26,8 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public double[] predict(FVec feat, int ntree_limit) {
-        double[] preds = new double[mparam.num_output_group];
+    public float[] predict(FVec feat, int ntree_limit) {
+        float[] preds = new float[mparam.num_output_group];
         for (int gid = 0; gid < mparam.num_output_group; ++gid) {
             preds[gid] = pred(feat, gid);
         }
@@ -35,7 +35,7 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public double predictSingle(FVec feat, int ntree_limit) {
+    public float predictSingle(FVec feat, int ntree_limit) {
         if (mparam.num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
@@ -44,12 +44,12 @@ public class GBLinear extends GBBase {
         return pred(feat, 0);
     }
 
-    double pred(FVec feat, int gid) {
-        double psum = bias(gid);
-        double featValue;
+    float pred(FVec feat, int gid) {
+        float psum = bias(gid);
+        float featValue;
         for (int fid = 0; fid < mparam.num_feature; ++fid) {
             featValue = feat.fvalue(fid);
-            if (!Double.isNaN(featValue)) {
+            if (!Float.isNaN(featValue)) {
                 psum += featValue * weight(fid, gid);
             }
         }

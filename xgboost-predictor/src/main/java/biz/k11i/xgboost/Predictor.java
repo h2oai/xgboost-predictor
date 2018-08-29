@@ -129,7 +129,7 @@ public class Predictor implements Serializable {
      * @param feat feature vector
      * @return prediction values
      */
-    public double[] predict(FVec feat) {
+    public float[] predict(FVec feat) {
         return predict(feat, false);
     }
 
@@ -140,7 +140,7 @@ public class Predictor implements Serializable {
      * @param output_margin whether to only predict margin value instead of transformed prediction
      * @return prediction values
      */
-    public double[] predict(FVec feat, boolean output_margin) {
+    public float[] predict(FVec feat, boolean output_margin) {
         return predict(feat, output_margin, 0);
     }
 
@@ -152,16 +152,16 @@ public class Predictor implements Serializable {
      * @param ntree_limit   limit the number of trees used in prediction
      * @return prediction values
      */
-    public double[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        double[] preds = predictRaw(feat, ntree_limit);
-        if (!output_margin) {
-            return obj.predTransform(preds);
+    public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
+        float[] preds = predictRaw(feat, ntree_limit);
+        if (! output_margin) {
+            preds = obj.predTransform(preds);
         }
         return preds;
     }
 
-    double[] predictRaw(FVec feat, int ntree_limit) {
-        double[] preds = gbm.predict(feat, ntree_limit);
+    float[] predictRaw(FVec feat, int ntree_limit) {
+        float[] preds = gbm.predict(feat, ntree_limit);
         for (int i = 0; i < preds.length; i++) {
             preds[i] += mparam.base_score;
         }
@@ -177,7 +177,7 @@ public class Predictor implements Serializable {
      * @param feat feature vector
      * @return prediction value
      */
-    public double predictSingle(FVec feat) {
+    public float predictSingle(FVec feat) {
         return predictSingle(feat, false);
     }
 
@@ -191,7 +191,7 @@ public class Predictor implements Serializable {
      * @param output_margin whether to only predict margin value instead of transformed prediction
      * @return prediction value
      */
-    public double predictSingle(FVec feat, boolean output_margin) {
+    public float predictSingle(FVec feat, boolean output_margin) {
         return predictSingle(feat, output_margin, 0);
     }
 
@@ -206,15 +206,15 @@ public class Predictor implements Serializable {
      * @param ntree_limit   limit the number of trees used in prediction
      * @return prediction value
      */
-    public double predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
-        double pred = predictSingleRaw(feat, ntree_limit);
+    public float predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
+        float pred = predictSingleRaw(feat, ntree_limit);
         if (!output_margin) {
-            return obj.predTransform(pred);
+            pred = obj.predTransform(pred);
         }
         return pred;
     }
 
-    double predictSingleRaw(FVec feat, int ntree_limit) {
+    float predictSingleRaw(FVec feat, int ntree_limit) {
         return gbm.predictSingle(feat, ntree_limit) + mparam.base_score;
     }
 

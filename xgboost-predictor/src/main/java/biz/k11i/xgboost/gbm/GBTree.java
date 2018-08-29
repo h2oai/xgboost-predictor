@@ -59,8 +59,8 @@ public class GBTree extends GBBase {
     }
 
     @Override
-    public double[] predict(FVec feat, int ntree_limit) {
-        double[] preds = new double[mparam.num_output_group];
+    public float[] predict(FVec feat, int ntree_limit) {
+        float[] preds = new float[mparam.num_output_group];
         for (int gid = 0; gid < mparam.num_output_group; gid++) {
             preds[gid] = pred(feat, gid, 0, ntree_limit);
         }
@@ -68,7 +68,7 @@ public class GBTree extends GBBase {
     }
 
     @Override
-    public double predictSingle(FVec feat, int ntree_limit) {
+    public float predictSingle(FVec feat, int ntree_limit) {
         if (mparam.num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
@@ -77,11 +77,11 @@ public class GBTree extends GBBase {
         return pred(feat, 0, 0, ntree_limit);
     }
 
-    double pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
+    float pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
         RegTree[] trees = _groupTrees[bst_group];
         int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
 
-        double psum = 0;
+        float psum = 0;
         for (int i = 0; i < treeleft; i++) {
             psum += trees[i].getLeafValue(feat, root_index);
         }

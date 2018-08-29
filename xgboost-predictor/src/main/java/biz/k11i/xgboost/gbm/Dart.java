@@ -25,11 +25,11 @@ public class Dart extends GBTree {
         }
     }
 
-    double pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
+    float pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
         RegTree[] trees = _groupTrees[bst_group];
         int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
 
-        double psum = 0;
+        float psum = 0;
         for (int i = 0; i < treeleft; i++) {
             psum += weightDrop[i] * trees[i].getLeafValue(feat, root_index);
         }
