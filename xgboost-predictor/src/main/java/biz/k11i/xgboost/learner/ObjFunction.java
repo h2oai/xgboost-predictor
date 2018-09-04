@@ -104,7 +104,7 @@ public class ObjFunction implements Serializable {
         }
 
         float sigmoid(float x) {
-            return (float) (1 / (1 + Math.exp(-x)));
+            return (1f / (1f + (float) Math.exp(-x)));
         }
     }
 
@@ -155,14 +155,14 @@ public class ObjFunction implements Serializable {
                 max = Math.max(preds[i], max);
             }
 
-            float sum = 0;
+            double sum = 0;
             for (int i = 0; i < preds.length; i++) {
                 preds[i] = exp(preds[i] - max);
                 sum += preds[i];
             }
 
             for (int i = 0; i < preds.length; i++) {
-                preds[i] /= sum;
+                preds[i] /= (float) sum;
             }
 
             return preds;
