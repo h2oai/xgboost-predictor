@@ -44,7 +44,7 @@ public class Predictor implements Serializable {
         initObjFunction(configuration);
         initObjGbm();
 
-        gbm.loadModel(reader, mparam.saved_with_pbuffer != 0);
+        gbm.loadModel(configuration, reader, mparam.saved_with_pbuffer != 0);
     }
 
     void readParam(ModelReader reader) throws IOException {

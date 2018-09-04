@@ -1,5 +1,6 @@
 package biz.k11i.xgboost.gbm;
 
+import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.tree.RegTree;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
@@ -17,8 +18,8 @@ public class Dart extends GBTree {
     }
 
     @Override
-    public void loadModel(ModelReader reader, boolean with_pbuffer) throws IOException {
-        super.loadModel(reader, with_pbuffer);
+    public void loadModel(PredictorConfiguration config, ModelReader reader, boolean with_pbuffer) throws IOException {
+        super.loadModel(config, reader, with_pbuffer);
         if (mparam.num_trees != 0) {
             long size = reader.readLong();
             weightDrop = reader.readFloatArray((int)size);

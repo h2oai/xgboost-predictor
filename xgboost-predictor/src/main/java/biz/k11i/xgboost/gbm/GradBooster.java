@@ -1,5 +1,6 @@
 package biz.k11i.xgboost.gbm;
 
+import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
@@ -39,7 +40,7 @@ public interface GradBooster extends Serializable {
      * @param with_pbuffer whether the incoming data contains pbuffer
      * @throws IOException If an I/O error occurs
      */
-    void loadModel(ModelReader reader, boolean with_pbuffer) throws IOException;
+    void loadModel(PredictorConfiguration config, ModelReader reader, boolean with_pbuffer) throws IOException;
 
     /**
      * Generates predictions for given feature vector.

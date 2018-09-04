@@ -1,5 +1,6 @@
 package biz.k11i.xgboost.gbm;
 
+import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.tree.RegTree;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
@@ -22,13 +23,12 @@ public class GBTree extends GBBase {
     }
 
     @Override
-    public void loadModel(ModelReader reader, boolean with_pbuffer) throws IOException {
+    public void loadModel(PredictorConfiguration config, ModelReader reader, boolean with_pbuffer) throws IOException {
         mparam = new ModelParam(reader);
 
         trees = new RegTree[mparam.num_trees];
         for (int i = 0; i < mparam.num_trees; i++) {
-            trees[i] = new RegTree();
-            trees[i].loadModel(reader);
+            trees[i] = config.getRegTreeFactory().loadTree(reader);
         }
 
         tree_info = mparam.num_trees > 0 ? reader.readIntArray(mparam.num_trees) : new int[0];
