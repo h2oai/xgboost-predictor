@@ -17,7 +17,7 @@ def archivesNameSuffixFlag = ''
 def makeOpts = 'CI=1'
 
 node ('master') {
-    stage('Checkout') {
+    buildSummary.stageWithSummary('Checkout') {
         cleanWs()
         def scmEnv = checkout scm
         env.BRANCH_NAME = scmEnv.GIT_BRANCH.replaceAll('origin/', '')
@@ -34,7 +34,7 @@ node ('master') {
         }
         currentBuild.description += ":${version}"
     }
-    stage('Prepare Docker Image and clean') {
+    buildSummary.stageWithSummary('Prepare Docker Image and clean') {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS S3 Credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                 docker.image('docker.h2o.ai/s3cmd').inside("-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}") {
                 sh """
@@ -48,13 +48,13 @@ node ('master') {
         }
     }
 
-    stage('Build') {
+    buildSummary.stageWithSummary('Build') {
         sh "make ${makeOpts} -f ci/Makefile build_in_docker"
         archiveArtifacts artifacts: 'xgboost-predictor/build/libs/*.jar'
     }
 
     if (params.targetNexus == 'private' || params.targetNexus == 'public') {
-        stage("Publish to ${params.targetNexus.capitalize()} Nexus") {
+        buildSummary.stageWithSummary("Publish to ${params.targetNexus.capitalize()} Nexus") {
             def credentialsId
             if (params.targetNexus == 'private') {
                 credentialsId = 'LOCAL_NEXUS'
