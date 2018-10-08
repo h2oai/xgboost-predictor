@@ -27,4 +27,10 @@ public interface RegTree extends Serializable {
      */
     float getLeafValue(FVec feat, int root_id);
 
+    /**
+     *
+     * @return Tree's nodes
+     */
+    public RegTreeNode[] getNodes();
+
 }

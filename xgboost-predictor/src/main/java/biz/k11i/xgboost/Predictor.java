@@ -276,4 +276,8 @@ public class Predictor implements Serializable {
             this.reserved = reader.readIntArray(30);
         }
     }
+
+    public GradBooster getBooster(){
+        return gbm;
+    }
 }
