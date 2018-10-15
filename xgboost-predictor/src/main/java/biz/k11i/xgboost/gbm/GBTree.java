@@ -143,4 +143,11 @@ public class GBTree extends GBBase {
         }
     }
 
+    /**
+     *
+     * @return A two-dim array, with trees grouped into classes.
+     */
+    public RegTree[][] getGroupedTrees(){
+        return _groupTrees;
+    }
 }

@@ -70,6 +70,11 @@ public class RegTreeImpl implements RegTree {
         return n.leaf_value;
     }
 
+    @Override
+    public Node[] getNodes() {
+        return nodes;
+    }
+
     /**
      * Parameters.
      */
@@ -104,7 +109,7 @@ public class RegTreeImpl implements RegTree {
         }
     }
 
-    static class Node implements Serializable {
+    public static class Node extends RegTreeNode implements Serializable {
         // pointer to parent, highest bit is used to
         // indicate whether it's a left child or not
         final int parent_;
@@ -140,19 +145,21 @@ public class RegTreeImpl implements RegTree {
             _isLeaf = is_leaf();
         }
 
-        boolean is_leaf() {
+        public boolean is_leaf() {
             return cleft_ == -1;
         }
 
-        int split_index() {
+        @Override
+        public int split_index() {
             return (int) (sindex_ & ((1l << 31) - 1l));
         }
 
-        int cdefault() {
+        public int cdefault() {
             return default_left() ? cleft_ : cright_;
         }
 
-        boolean default_left() {
+        @Override
+        public boolean default_left() {
             return (sindex_ >>> 31) != 0;
         }
 
@@ -162,6 +169,31 @@ public class RegTreeImpl implements RegTree {
                 return _defaultNext;
             }
             return (fvalue < split_cond) ? cleft_ : cright_;
+        }
+
+        @Override
+        public int getParentIndex() {
+            return parent_;
+        }
+
+        @Override
+        public int getLeftChildIndex() {
+            return cleft_;
+        }
+
+        @Override
+        public int getRightChildIndex() {
+            return cright_;
+        }
+
+        @Override
+        public float getSplitCondition() {
+            return split_cond;
+        }
+
+        @Override
+        public float getLeafValue(){
+            return leaf_value;
         }
     }
 
