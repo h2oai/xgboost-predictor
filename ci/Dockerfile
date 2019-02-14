@@ -31,7 +31,7 @@ ARG GIT_USERNAME
 ARG GIT_TOKEN
 RUN git clone https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/h2oai/xgboost-predictor && \
     cd xgboost-predictor && \
-    git checkout mr/build/pipeline && \
+    git checkout master && \
     make -f ci/Makefile clean_build && \
     cd ../ && \
     rm -rf xgboost-predictor && \
