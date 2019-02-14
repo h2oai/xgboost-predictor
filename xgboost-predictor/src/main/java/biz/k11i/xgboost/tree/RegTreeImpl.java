@@ -75,6 +75,10 @@ public class RegTreeImpl implements RegTree {
         return nodes;
     }
 
+    RTreeNodeStat[] getStats() {
+        return stats;
+    }
+
     /**
      * Parameters.
      */
