@@ -6,24 +6,27 @@
 // Licensed under Apache License Version 2.0
 package biz.k11i.xgboost.tree;
 
-import biz.k11i.xgboost.util.FVec;
+import ai.h2o.algos.tree.INode;
+import ai.h2o.algos.tree.INodeStat;
 
 /**
  * Warning: Experimental (alpha-level) code - needs testing for correctness & benchmarking!
  *
  * NOT thread safe, internal state is mutated in order to avoid memory allocation on a per-observation level
  */
-public class TreeSHAP {
+public class TreeSHAP<R, N extends INode<R>, S extends INodeStat> {
 
-  private final RegTreeImpl.Node[] nodes;
-  private final RegTreeImpl.RTreeNodeStat[] stats;
+  private final int rootNodeId;
+  private final N[] nodes;
+  private final S[] stats;
   private final float expectedTreeValue;
 
   private final PathElement[] unique_path_data; // shared state
 
-  public TreeSHAP(RegTreeImpl tree) {
-    this.nodes = tree.getNodes();
-    this.stats = tree.getStats();
+  public TreeSHAP(N[] nodes, S[] stats, int rootNodeId) {
+    this.rootNodeId = rootNodeId;
+    this.nodes = nodes;
+    this.stats = stats;
     this.expectedTreeValue = treeMeanValue();
 
     // Preallocate space for the unique path data
@@ -90,7 +93,7 @@ public class TreeSHAP {
     }
   }
 
-  // determine what the total permutation weight would be if
+  // determine what the total permutation getWeight would be if
   // we unwound a previous extension in the decision path
   private float unwoundPathSum(final PathPointer unique_path, int unique_depth,
                                int path_index) {
@@ -110,24 +113,22 @@ public class TreeSHAP {
                 / (float)(unique_depth + 1));
       } else {
         if (unique_path.get(i).pweight != 0)
-          throw new IllegalStateException("Unique path " + i + " must have zero weight");
+          throw new IllegalStateException("Unique path " + i + " must have zero getWeight");
       }
     }
     return total;
   }
 
   // recursive computation of SHAP values for a decision tree
-  private void treeShap(final FVec feat, float[] phi,
-                        int node_index, int unique_depth,
+  private void treeShap(R feat, float[] phi,
+                        N node, S nodeStat, int unique_depth,
                         PathPointer parent_unique_path,
                         float parent_zero_fraction,
                         float parent_one_fraction, int parent_feature_index,
                         int condition, int condition_feature,
                         float condition_fraction) {
 
-    final RegTreeImpl.Node node = nodes[node_index];
-
-    // stop if we have no weight coming down to us
+    // stop if we have no getWeight coming down to us
     if (condition_fraction == 0) return;
 
     // extend the unique path
@@ -137,32 +138,25 @@ public class TreeSHAP {
       extendPath(unique_path, unique_depth, parent_zero_fraction,
               parent_one_fraction, parent_feature_index);
     }
-    final int split_index = node.split_index();
+    final int split_index = node.getSplitIndex();
 
     // leaf node
-    if (node.is_leaf()) {
+    if (node.isLeaf()) {
       for (int i = 1; i <= unique_depth; ++i) {
         final float w = unwoundPathSum(unique_path, unique_depth, i);
         final PathElement el = unique_path.get(i);
         phi[el.feature_index] += w * (el.one_fraction - el.zero_fraction)
-                * node.leaf_value * condition_fraction;
+                * node.getLeafValue() * condition_fraction;
       }
 
       // internal node
     } else {
       // find which branch is "hot" (meaning x would follow it)
-      int hot_index = 0;
-      if (Float.isNaN(feat.fvalue(split_index))) {
-        hot_index = node.cdefault();
-      } else if (feat.fvalue(split_index) < node.split_cond) {
-        hot_index = node.cleft_;
-      } else {
-        hot_index = node.cright_;
-      }
-      final int cold_index = hot_index == node.cleft_ ? node.cright_ : node.cleft_;
-      final float w = stats[node_index].sum_hess;
-      final float hot_zero_fraction = stats[hot_index].sum_hess / w;
-      final float cold_zero_fraction = stats[cold_index].sum_hess / w;
+      final int hot_index = node.next(feat);
+      final int cold_index = hot_index == node.getLeftChildIndex() ? node.getRightChildIndex() : node.getLeftChildIndex();
+      final float w = nodeStat.getWeight();
+      final float hot_zero_fraction = stats[hot_index].getWeight() / w;
+      final float cold_zero_fraction = stats[cold_index].getWeight() / w;
       float incoming_zero_fraction = 1;
       float incoming_one_fraction = 1;
 
@@ -192,11 +186,11 @@ public class TreeSHAP {
         unique_depth -= 1;
       }
 
-      treeShap(feat, phi, hot_index, unique_depth + 1, unique_path,
+      treeShap(feat, phi, nodes[hot_index], stats[hot_index], unique_depth + 1, unique_path,
               hot_zero_fraction * incoming_zero_fraction, incoming_one_fraction,
               split_index, condition, condition_feature, hot_condition_fraction);
 
-      treeShap(feat, phi, cold_index, unique_depth + 1, unique_path,
+      treeShap(feat, phi, nodes[cold_index], stats[cold_index], unique_depth + 1, unique_path,
               cold_zero_fraction * incoming_zero_fraction, 0,
               split_index, condition, condition_feature, cold_condition_fraction);
     }
@@ -230,10 +224,12 @@ public class TreeSHAP {
     }
   }
 
-  public void calculateContributions(final FVec feat,
-                                     int root_id, float[] out_contribs,
-                                     int condition,
-                                     int condition_feature) {
+  public float[] calculateContributions(final R feat, float[] out_contribs) {
+    return calculateContributions(feat, out_contribs, 0, -1);
+  }
+
+  public float[] calculateContributions(final R feat,
+                                        float[] out_contribs, int condition, int condition_feature) {
 
     // find the expected value of the tree's predictions
     if (condition == 0) {
@@ -242,8 +238,9 @@ public class TreeSHAP {
 
     PathPointer uniquePathWorkspace = getWorkspace();
 
-    treeShap(feat, out_contribs, root_id, 0, uniquePathWorkspace,
+    treeShap(feat, out_contribs, nodes[rootNodeId], stats[rootNodeId], 0, uniquePathWorkspace,
             1, 1, -1, condition, condition_feature, 1);
+    return out_contribs;
   }
 
   private PathPointer getWorkspace() {
@@ -255,12 +252,12 @@ public class TreeSHAP {
     return nodeDepth(nodes, 0);
   }
 
-  private static int nodeDepth(RegTreeImpl.Node[] nodes, int node) {
-    final RegTreeImpl.Node n = nodes[node];
-    if (n.is_leaf()) {
+  private static <N extends INode> int nodeDepth(N[] nodes, int node) {
+    final N n = nodes[node];
+    if (n.isLeaf()) {
       return 1;
     } else {
-      return 1 + Math.max(nodeDepth(nodes, n.cleft_), nodeDepth(nodes, n.cright_));
+      return 1 + Math.max(nodeDepth(nodes, n.getLeftChildIndex()), nodeDepth(nodes, n.getRightChildIndex()));
     }
   }
 
@@ -268,13 +265,13 @@ public class TreeSHAP {
     return nodeMeanValue(nodes, stats, 0);
   }
 
-  private static float nodeMeanValue(RegTreeImpl.Node[] nodes, RegTreeImpl.RTreeNodeStat[] stats, int node) {
-    final RegTreeImpl.Node n = nodes[node];
-    if (n.is_leaf()) {
-      return n.leaf_value;
+  private static <N extends INode, S extends INodeStat> float nodeMeanValue(N[] nodes, S[] stats, int node) {
+    final N n = nodes[node];
+    if (n.isLeaf()) {
+      return n.getLeafValue();
     } else {
-      return (stats[n.cleft_].sum_hess * nodeMeanValue(nodes, stats, n.cleft_) +
-              stats[n.cright_].sum_hess * nodeMeanValue(nodes, stats, n.cright_)) / stats[node].sum_hess;
+      return (stats[n.getLeftChildIndex()].getWeight() * nodeMeanValue(nodes, stats, n.getLeftChildIndex()) +
+              stats[n.getRightChildIndex()].getWeight() * nodeMeanValue(nodes, stats, n.getRightChildIndex())) / stats[node].getWeight();
     }
   }
 

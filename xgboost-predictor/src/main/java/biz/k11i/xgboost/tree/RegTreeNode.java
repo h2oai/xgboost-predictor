@@ -1,8 +1,11 @@
 package biz.k11i.xgboost.tree;
 
+import ai.h2o.algos.tree.INode;
+import biz.k11i.xgboost.util.FVec;
+
 import java.io.Serializable;
 
-public abstract class RegTreeNode implements Serializable {
+public abstract class RegTreeNode implements INode<FVec>, Serializable {
 
     /**
      *
@@ -44,5 +47,6 @@ public abstract class RegTreeNode implements Serializable {
      *
      * @return Index of domain category used to split on the node
      */
-    public abstract int split_index();
+    public abstract int getSplitIndex();
+
 }
