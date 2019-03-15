@@ -1,2 +1,3 @@
 rootProject.name = 'xgboost-predictor-java'
+include 'h2o-tree-api'
 include 'xgboost-predictor'

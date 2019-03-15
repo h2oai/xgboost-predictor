@@ -1,5 +1,6 @@
 package biz.k11i.xgboost.tree;
 
+import ai.h2o.algos.tree.INodeStat;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
@@ -136,7 +137,7 @@ public class RegTreeImpl implements RegTree {
             cright_ = reader.readInt();
             sindex_ = reader.readInt();
 
-            if (is_leaf()) {
+            if (isLeaf()) {
                 leaf_value = reader.readFloat();
                 split_cond = Float.NaN;
             } else {
@@ -145,16 +146,16 @@ public class RegTreeImpl implements RegTree {
             }
 
             _defaultNext = cdefault();
-            _splitIndex = split_index();
-            _isLeaf = is_leaf();
+            _splitIndex = getSplitIndex();
+            _isLeaf = isLeaf();
         }
 
-        public boolean is_leaf() {
+        public boolean isLeaf() {
             return cleft_ == -1;
         }
 
         @Override
-        public int split_index() {
+        public int getSplitIndex() {
             return (int) (sindex_ & ((1l << 31) - 1l));
         }
 
@@ -167,12 +168,13 @@ public class RegTreeImpl implements RegTree {
             return (sindex_ >>> 31) != 0;
         }
 
-        int next(FVec feat) {
-            float fvalue = feat.fvalue(_splitIndex);
-            if (fvalue != fvalue) {  // is NaN?
+        @Override
+        public int next(FVec feat) {
+            float value = feat.fvalue(_splitIndex);
+            if (value != value) {  // is NaN?
                 return _defaultNext;
             }
-            return (fvalue < split_cond) ? cleft_ : cright_;
+            return (value < split_cond) ? cleft_ : cright_;
         }
 
         @Override
@@ -204,7 +206,7 @@ public class RegTreeImpl implements RegTree {
     /**
      * Statistics each node in tree.
      */
-    static class RTreeNodeStat implements Serializable {
+    static class RTreeNodeStat implements INodeStat, Serializable {
         /*! \brief loss chg caused by current split */
         final float loss_chg;
         /*! \brief sum of hessian values, used to measure coverage of data */
@@ -219,6 +221,11 @@ public class RegTreeImpl implements RegTree {
             sum_hess = reader.readFloat();
             base_weight = reader.readFloat();
             leaf_child_cnt = reader.readInt();
+        }
+
+        @Override
+        public float getWeight() {
+            return sum_hess;
         }
     }
 }
