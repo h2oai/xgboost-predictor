@@ -36,6 +36,7 @@ public interface GradBooster extends Serializable {
     /**
      * Loads model from stream.
      *
+     * @param config       predictor configuration
      * @param reader       input stream
      * @param with_pbuffer whether the incoming data contains pbuffer
      * @throws IOException If an I/O error occurs
