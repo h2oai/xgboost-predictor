@@ -3,5 +3,6 @@ apply from: "$rootDir/gradle/publish.gradle"
 description = "Pure Java implementation of XGBoost predictor for online prediction tasks"
 
 dependencies {
+    compile project(':h2o-tree-api')
     compile group: 'net.jafama', name: 'jafama', version: '2.1.0'
 }
