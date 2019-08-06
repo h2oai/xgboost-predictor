@@ -39,19 +39,32 @@ public class RegTreeImpl implements RegTree {
      * Retrieves nodes from root to leaf and returns leaf index.
      *
      * @param feat    feature vector
-     * @param root_id starting root index
      * @return leaf index
      */
     @Override
-    public int getLeafIndex(FVec feat, int root_id) {
-        int pid = root_id;
-
+    public int getLeafIndex(FVec feat) {
+        int id = 0;
         Node n;
-        while (!(n = nodes[pid])._isLeaf) {
-            pid = n.next(feat);
+        while (!(n = nodes[id])._isLeaf) {
+            id = n.next(feat);
         }
+        return id;
+    }
 
-        return pid;
+    /**
+     * Retrieves nodes from root to leaf and returns path to leaf.
+     *
+     * @param feat    feature vector
+     * @param sb      output param, will write path path to leaf into this buffer
+     */
+    @Override
+    public void getLeafPath(FVec feat, StringBuilder sb) {
+        int id = 0;
+        Node n;
+        while (!(n = nodes[id])._isLeaf) {
+            id = n.next(feat);
+            sb.append(id == n.cleft_ ? "L" : "R");
+        }
     }
 
     /**

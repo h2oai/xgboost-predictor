@@ -62,6 +62,11 @@ public class GBLinear extends GBBase {
         throw new UnsupportedOperationException("gblinear does not support predict leaf index");
     }
 
+    @Override
+    public String[] predictLeafPath(FVec feat, int ntree_limit) {
+        throw new UnsupportedOperationException("gblinear does not support predict leaf path");
+    }
+
     float weight(int fid, int gid) {
         return weights[(fid * mparam.num_output_group) + gid];
     }
