@@ -56,17 +56,9 @@ clean_docker:
 DOCKER_IMAGE := docker.h2o.ai/opsh2oai/xgboost-predictor-build
 ci/Dockerfile.tag: ci/Dockerfile
 	$(info Building docker image, git credentials will be required.)
-ifeq ($(GIT_USERNAME),)
-	$(error GIT_USERNAME must be set.)
-endif
-ifeq ($(GIT_TOKEN),)
-	$(error GIT_TOKEN must be set.)
-endif
 	echo $(DOCKER_IMAGE) > ci/Dockerfile.tag
 	docker build \
 		-t $(DOCKER_IMAGE) \
-		--build-arg GIT_USERNAME=$(GIT_USERNAME) \
-		--build-arg GIT_TOKEN=$(GIT_TOKEN) \
 		-f ci/Dockerfile \
 		.
 
