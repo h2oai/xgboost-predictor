@@ -12,6 +12,7 @@ import java.io.Serializable;
  * Gradient boosted tree implementation.
  */
 public class GBTree extends GBBase {
+
     ModelParam mparam;
     private RegTree[] trees;
     private int[] tree_info;
@@ -91,20 +92,26 @@ public class GBTree extends GBBase {
 
     @Override
     public int[] predictLeaf(FVec feat, int ntree_limit) {
-        return predPath(feat, 0, ntree_limit);
-    }
-
-
-    int[] predPath(FVec feat, int root_index, int ntree_limit) {
         int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
-
         int[] leafIndex = new int[treeleft];
         for (int i = 0; i < treeleft; i++) {
-            leafIndex[i] = trees[i].getLeafIndex(feat, root_index);
+            leafIndex[i] = trees[i].getLeafIndex(feat);
         }
         return leafIndex;
     }
 
+    @Override
+    public String[] predictLeafPath(FVec feat, int ntree_limit) {
+        int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
+        String[] leafPath = new String[treeleft];
+        StringBuilder sb = new StringBuilder(64);
+        for (int i = 0; i < treeleft; i++) {
+            trees[i].getLeafPath(feat, sb);
+            leafPath[i] = sb.toString();
+            sb.setLength(0);
+        }
+        return leafPath;
+    }
 
     static class ModelParam implements Serializable {
         /*! \brief number of trees */

@@ -13,10 +13,17 @@ public interface RegTree extends Serializable {
      * Retrieves nodes from root to leaf and returns leaf index.
      *
      * @param feat    feature vector
-     * @param root_id starting root index
      * @return leaf index
      */
-    int getLeafIndex(FVec feat, int root_id);
+    int getLeafIndex(FVec feat);
+
+    /**
+     * Retrieves nodes from root to leaf and returns path to leaf.
+     *
+     * @param feat    feature vector
+     * @param sb      output param, will write path path to leaf into this buffer
+     */
+    void getLeafPath(FVec feat, StringBuilder sb);
 
     /**
      * Retrieves nodes from root to leaf and returns leaf value.

@@ -232,12 +232,32 @@ public class Predictor implements Serializable {
      * Predicts leaf index of each tree.
      *
      * @param feat        feature vector
-     * @param ntree_limit limit
+     * @param ntree_limit limit, 0 for all
      * @return leaf indexes
      */
-    public int[] predictLeaf(FVec feat,
-                             int ntree_limit) {
+    public int[] predictLeaf(FVec feat, int ntree_limit) {
         return gbm.predictLeaf(feat, ntree_limit);
+    }
+
+    /**
+     * Predicts path to leaf of each tree.
+     *
+     * @param feat        feature vector
+     * @return leaf paths
+     */
+    public String[] predictLeafPath(FVec feat) {
+        return predictLeafPath(feat, 0);
+    }
+
+    /**
+     * Predicts path to leaf of each tree.
+     *
+     * @param feat        feature vector
+     * @param ntree_limit limit, 0 for all
+     * @return leaf paths
+     */
+    public String[] predictLeafPath(FVec feat, int ntree_limit) {
+        return gbm.predictLeafPath(feat, ntree_limit);
     }
 
     public SparkModelParam getSparkModelParam() {

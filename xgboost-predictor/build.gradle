@@ -4,5 +4,6 @@ description = "Pure Java implementation of XGBoost predictor for online predicti
 
 dependencies {
     compile project(':h2o-tree-api')
-    compile group: 'net.jafama', name: 'jafama', version: '2.1.0'
+    compile 'net.jafama:jafama:2.1.0'
+    testCompile "junit:junit:4.12"
 }
