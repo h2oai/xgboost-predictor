@@ -300,4 +300,13 @@ public class Predictor implements Serializable {
     public GradBooster getBooster(){
         return gbm;
     }
+
+    public String getObjName() {
+        return name_obj;
+    }
+
+    public float getBaseScore() {
+        return mparam.base_score;
+    }
+
 }

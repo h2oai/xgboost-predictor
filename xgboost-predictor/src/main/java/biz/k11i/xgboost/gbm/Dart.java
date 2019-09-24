@@ -37,4 +37,9 @@ public class Dart extends GBTree {
 
         return psum;
     }
+
+    public float weight(int tidx) {
+        return weightDrop[tidx];
+    }
+
 }
