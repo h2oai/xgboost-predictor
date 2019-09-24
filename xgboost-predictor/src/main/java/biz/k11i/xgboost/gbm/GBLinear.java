@@ -67,11 +67,11 @@ public class GBLinear extends GBBase {
         throw new UnsupportedOperationException("gblinear does not support predict leaf path");
     }
 
-    float weight(int fid, int gid) {
+    public float weight(int fid, int gid) {
         return weights[(fid * mparam.num_output_group) + gid];
     }
 
-    float bias(int gid) {
+    public float bias(int gid) {
         return weights[(mparam.num_feature * mparam.num_output_group) + gid];
     }
 
@@ -93,6 +93,14 @@ public class GBLinear extends GBBase {
             reserved = reader.readIntArray(32);
             reader.readInt(); // read padding
         }
+    }
+
+    public int getNumFeature() {
+        return mparam.num_feature;
+    }
+
+    public int getNumOutputGroup() {
+        return mparam.num_output_group;
     }
 
 }
