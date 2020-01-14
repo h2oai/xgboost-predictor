@@ -148,22 +148,47 @@ public class Predictor implements Serializable {
      * Generates predictions for given feature vector.
      *
      * @param feat          feature vector
+     * @param base_margin   predict with base margin for each prediction
+     * @return prediction values
+     */
+    public float[] predict(FVec feat, float base_margin) {
+        return predict(feat, base_margin, 0);
+    }
+
+    /**
+     * Generates predictions for given feature vector.
+     *
+     * @param feat          feature vector
+     * @param base_margin   predict with base margin for each prediction
+     * @param ntree_limit   limit the number of trees used in prediction
+     * @return prediction values
+     */
+    public float[] predict(FVec feat, float base_margin, int ntree_limit) {
+        float[] preds = predictRaw(feat, base_margin, ntree_limit);
+        preds = obj.predTransform(preds);
+        return preds;
+    }
+
+    /**
+     * Generates predictions for given feature vector.
+     *
+     * @param feat          feature vector
      * @param output_margin whether to only predict margin value instead of transformed prediction
      * @param ntree_limit   limit the number of trees used in prediction
      * @return prediction values
      */
     public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        float[] preds = predictRaw(feat, ntree_limit);
+        float[] preds = predictRaw(feat, mparam.base_score, ntree_limit);
         if (! output_margin) {
             preds = obj.predTransform(preds);
         }
         return preds;
     }
 
-    float[] predictRaw(FVec feat, int ntree_limit) {
+    float[] predictRaw(FVec feat, float base_score, int ntree_limit) {
         float[] preds = gbm.predict(feat, ntree_limit);
         for (int i = 0; i < preds.length; i++) {
-            preds[i] += mparam.base_score;
+            preds[i] += base_score;
         }
         return preds;
     }
