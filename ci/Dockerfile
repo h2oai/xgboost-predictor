@@ -13,13 +13,13 @@ RUN \
     groupadd -g 2117 jenkins && \
     useradd jenkins -m -u 2117 -g jenkins
 
-COPY ci/jdk1.8.0_171.zip /usr/opt/
+COPY ci/jdk1.7.0_80.zip /usr/opt/
 RUN cd /usr/opt && \
-    unzip -q jdk1.8.0_171.zip && \
-    rm -rf jdk1.8.0_171.zip
+    unzip -q jdk1.7.0_80.zip && \
+    rm -rf jdk1.7.0_80.zip
 
-ENV JAVA_HOME=/usr/opt/jdk1.8.0_171
-ENV PATH=${PATH}:/usr/opt/jdk1.8.0_171/bin
+ENV JAVA_HOME=/usr/opt/jdk1.7.0_80
+ENV PATH=${PATH}:/usr/opt/jdk1.7.0_80/bin
 
 RUN mkdir /gradle-home && \
     chmod a+w /gradle-home
