@@ -38,7 +38,7 @@ node ('master') {
                 docker.image('docker.h2o.ai/s3cmd').inside("-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}") {
                 sh """
                     cd ci
-                    s3cmd get s3://artifacts.h2o.ai/releases/oracle/jdk-8/x64-linux/jdk1.8.0_171.zip
+                    s3cmd get s3://artifacts.h2o.ai/releases/oracle/jdk-7/x64-linux/jdk1.7.0_80.zip
                 """
             }
         }
