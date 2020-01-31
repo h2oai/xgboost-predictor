@@ -11,6 +11,7 @@ import java.util.Map;
  * Objective function implementations.
  */
 public class ObjFunction implements Serializable {
+
     private static final Map<String, ObjFunction> FUNCTIONS = new HashMap<>();
 
     static {
@@ -20,6 +21,10 @@ public class ObjFunction implements Serializable {
         register("multi:softmax", new SoftmaxMultiClassObjClassify());
         register("multi:softprob", new SoftmaxMultiClassObjProb());
         register("reg:linear", new ObjFunction());
+        register("reg:squarederror", new ObjFunction());
+        register("reg:gamma", new RegObjFunction());
+        register("reg:tweedie", new RegObjFunction());
+        register("count:poisson", new RegObjFunction());
     }
 
     /**
@@ -87,6 +92,26 @@ public class ObjFunction implements Serializable {
     }
 
     /**
+     * Regression.
+     */
+    static class RegObjFunction extends ObjFunction {
+        @Override
+        public float[] predTransform(float[] preds) {
+            if (preds.length != 1)
+                throw new IllegalStateException(
+                    "Regression problem is supposed to have just a single predicted value, got " + preds.length + " instead."
+                );
+            preds[0] = (float) Math.exp(preds[0]);
+            return preds;
+        }
+
+        @Override
+        public float predTransform(float pred) {
+            return (float) Math.exp(pred);
+        }
+    }
+
+    /**
      * Logistic regression.
      */
     static class RegLossObjLogistic extends ObjFunction {
@@ -115,8 +140,9 @@ public class ObjFunction implements Serializable {
      * </p>
      */
     static class RegLossObjLogistic_Jafama extends RegLossObjLogistic {
-        double sigmoid(double x) {
-            return (1 / (1 + FastMath.exp(-x)));
+        @Override
+        float sigmoid(float x) {
+            return (float) (1 / (1 + FastMath.exp(-x)));
         }
     }
 
