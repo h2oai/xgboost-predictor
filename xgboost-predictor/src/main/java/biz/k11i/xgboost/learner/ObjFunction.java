@@ -92,7 +92,7 @@ public class ObjFunction implements Serializable {
     }
 
     /**
-     * Logistic regression.
+     * Regression.
      */
     static class RegObjFunction extends ObjFunction {
         @Override
@@ -140,8 +140,9 @@ public class ObjFunction implements Serializable {
      * </p>
      */
     static class RegLossObjLogistic_Jafama extends RegLossObjLogistic {
-        double sigmoid(double x) {
-            return (1 / (1 + FastMath.exp(-x)));
+        @Override
+        float sigmoid(float x) {
+            return (float) (1 / (1 + FastMath.exp(-x)));
         }
     }
 
