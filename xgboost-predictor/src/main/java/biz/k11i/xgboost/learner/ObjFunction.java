@@ -91,6 +91,11 @@ public class ObjFunction implements Serializable {
         return pred;
     }
 
+    public float probToMargin(float prob) {
+        // do nothing
+        return prob;
+    }
+
     /**
      * Regression.
      */
@@ -108,6 +113,11 @@ public class ObjFunction implements Serializable {
         @Override
         public float predTransform(float pred) {
             return (float) Math.exp(pred);
+        }
+
+        @Override
+        public float probToMargin(float prob) {
+            return (float) Math.log(prob);
         }
     }
 
@@ -130,6 +140,11 @@ public class ObjFunction implements Serializable {
 
         float sigmoid(float x) {
             return (1f / (1f + (float) Math.exp(-x)));
+        }
+
+        @Override
+        public float probToMargin(float prob) {
+            return (float) -Math.log(1.0f / prob - 1.0f);
         }
     }
 
