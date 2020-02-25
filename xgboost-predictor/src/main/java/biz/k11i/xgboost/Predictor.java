@@ -22,6 +22,8 @@ public class Predictor implements Serializable {
     private ObjFunction obj;
     private GradBooster gbm;
 
+    private float base_score;
+
     public Predictor(InputStream in) throws IOException {
         this(in, null);
     }
@@ -45,6 +47,12 @@ public class Predictor implements Serializable {
         initObjGbm();
 
         gbm.loadModel(configuration, reader, mparam.saved_with_pbuffer != 0);
+
+        if (mparam.major_version >= 1) {
+            base_score = obj.probToMargin(mparam.base_score);
+        } else {
+            base_score = mparam.base_score;
+        }
     }
 
     void readParam(ModelReader reader) throws IOException {
@@ -178,7 +186,7 @@ public class Predictor implements Serializable {
      * @return prediction values
      */
     public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        float[] preds = predictRaw(feat, mparam.base_score, ntree_limit);
+        float[] preds = predictRaw(feat, base_score, ntree_limit);
         if (! output_margin) {
             preds = obj.predTransform(preds);
         }
@@ -240,7 +248,7 @@ public class Predictor implements Serializable {
     }
 
     float predictSingleRaw(FVec feat, int ntree_limit) {
-        return gbm.predictSingle(feat, ntree_limit) + mparam.base_score;
+        return gbm.predictSingle(feat, ntree_limit) + base_score;
     }
 
     /**
@@ -310,6 +318,11 @@ public class Predictor implements Serializable {
         final int num_class;
         /*! \brief whether the model itself is saved with pbuffer */
         final int saved_with_pbuffer;
+        /*! \brief Model contain eval metrics */
+        private final int contain_eval_metrics;
+        /*! \brief the version of XGBoost. */
+        private final int major_version;
+        private final int minor_version;
         /*! \brief reserved field */
         final int[] reserved;
 
@@ -318,7 +331,10 @@ public class Predictor implements Serializable {
             this.num_feature = num_feature;
             this.num_class = reader.readInt();
             this.saved_with_pbuffer = reader.readInt();
-            this.reserved = reader.readIntArray(30);
+            this.contain_eval_metrics = reader.readInt();
+            this.major_version = reader.readUnsignedInt();
+            this.minor_version = reader.readUnsignedInt();
+            this.reserved = reader.readIntArray(27);
         }
     }
 
@@ -331,7 +347,7 @@ public class Predictor implements Serializable {
     }
 
     public float getBaseScore() {
-        return mparam.base_score;
+        return base_score;
     }
 
 }

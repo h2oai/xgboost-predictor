@@ -25,7 +25,7 @@ public class GBTree extends GBBase {
 
     @Override
     public void loadModel(PredictorConfiguration config, ModelReader reader, boolean with_pbuffer) throws IOException {
-        mparam = new ModelParam(reader);
+        mparam = new ModelParam(reader, num_class);
 
         trees = new RegTree[mparam.num_trees];
         for (int i = 0; i < mparam.num_trees; i++) {
@@ -133,13 +133,14 @@ public class GBTree extends GBBase {
         /*! \brief reserved parameters */
         final int[] reserved;
 
-        ModelParam(ModelReader reader) throws IOException {
+        ModelParam(ModelReader reader, int num_class) throws IOException {
             num_trees = reader.readInt();
             num_roots = reader.readInt();
             num_feature = reader.readInt();
             reader.readInt(); // read padding
             num_pbuffer = reader.readLong();
-            num_output_group = reader.readInt();
+            reader.readInt(); // num_output_group not used anymore
+            num_output_group = (num_class == 0) ? 1 : num_class;
             size_leaf_vector = reader.readInt();
             reserved = reader.readIntArray(31);
             reader.readInt(); // read padding
