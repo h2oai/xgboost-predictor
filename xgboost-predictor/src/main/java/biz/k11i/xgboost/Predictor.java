@@ -129,6 +129,7 @@ public class Predictor implements Serializable {
         obj = ObjFunction.fromName(name_obj);
         gbm = GradBooster.Factory.createGradBooster(name_gbm);
         gbm.setNumClass(mparam.num_class);
+        gbm.setNumFeature(mparam.num_feature);
     }
 
     /**

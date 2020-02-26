@@ -21,9 +21,9 @@ public class GBLinear extends GBBase {
 
     @Override
     public void loadModel(PredictorConfiguration config, ModelReader reader, boolean ignored_with_pbuffer) throws IOException {
-        mparam = new ModelParam(reader);
+        mparam = new ModelParam(reader, num_class);
         reader.readInt(); // read padding
-        weights = reader.readFloatArray((mparam.num_feature + 1) * mparam.num_output_group);
+        weights = reader.readFloatArray((num_feature + 1) * mparam.num_output_group);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class GBLinear extends GBBase {
     float pred(FVec feat, int gid) {
         float psum = bias(gid);
         float featValue;
-        for (int fid = 0; fid < mparam.num_feature; ++fid) {
+        for (int fid = 0; fid < num_feature; ++fid) {
             featValue = feat.fvalue(fid);
             if (!Float.isNaN(featValue)) {
                 psum += featValue * weight(fid, gid);
@@ -72,12 +72,10 @@ public class GBLinear extends GBBase {
     }
 
     public float bias(int gid) {
-        return weights[(mparam.num_feature * mparam.num_output_group) + gid];
+        return weights[(num_feature * mparam.num_output_group) + gid];
     }
 
     static class ModelParam implements Serializable {
-        /*! \brief number of features */
-        final int num_feature;
         /*!
          * \brief how many output group a single instance can produce
          *  this affects the behavior of number of output we have:
@@ -87,16 +85,17 @@ public class GBLinear extends GBBase {
         /*! \brief reserved parameters */
         final int[] reserved;
 
-        ModelParam(ModelReader reader) throws IOException {
-            num_feature = reader.readInt();
-            num_output_group = reader.readInt();
+        ModelParam(ModelReader reader, int num_class) throws IOException {
+            reader.readUnsignedInt(); // num_feature deprecated
+            reader.readInt(); // num_output_group deprecated
+            num_output_group = (num_class == 0) ? 1 : num_class;
             reserved = reader.readIntArray(32);
             reader.readInt(); // read padding
         }
     }
 
     public int getNumFeature() {
-        return mparam.num_feature;
+        return num_feature;
     }
 
     public int getNumOutputGroup() {
