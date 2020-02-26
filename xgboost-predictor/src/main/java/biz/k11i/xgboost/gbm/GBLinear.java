@@ -12,24 +12,19 @@ import java.io.Serializable;
  */
 public class GBLinear extends GBBase {
 
-    private ModelParam mparam;
     private float[] weights;
-
-    GBLinear() {
-        // do nothing
-    }
 
     @Override
     public void loadModel(PredictorConfiguration config, ModelReader reader, boolean ignored_with_pbuffer) throws IOException {
-        mparam = new ModelParam(reader, num_class);
+        new ModelParam(reader);
         reader.readInt(); // read padding
-        weights = reader.readFloatArray((num_feature + 1) * mparam.num_output_group);
+        weights = reader.readFloatArray((num_feature + 1) * num_output_group);
     }
 
     @Override
     public float[] predict(FVec feat, int ntree_limit) {
-        float[] preds = new float[mparam.num_output_group];
-        for (int gid = 0; gid < mparam.num_output_group; ++gid) {
+        float[] preds = new float[num_output_group];
+        for (int gid = 0; gid < num_output_group; ++gid) {
             preds[gid] = pred(feat, gid);
         }
         return preds;
@@ -37,10 +32,10 @@ public class GBLinear extends GBBase {
 
     @Override
     public float predictSingle(FVec feat, int ntree_limit) {
-        if (mparam.num_output_group != 1) {
+        if (num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
-                            + mparam.num_output_group);
+                            + num_output_group);
         }
         return pred(feat, 0);
     }
@@ -68,27 +63,20 @@ public class GBLinear extends GBBase {
     }
 
     public float weight(int fid, int gid) {
-        return weights[(fid * mparam.num_output_group) + gid];
+        return weights[(fid * num_output_group) + gid];
     }
 
     public float bias(int gid) {
-        return weights[(num_feature * mparam.num_output_group) + gid];
+        return weights[(num_feature * num_output_group) + gid];
     }
 
     static class ModelParam implements Serializable {
-        /*!
-         * \brief how many output group a single instance can produce
-         *  this affects the behavior of number of output we have:
-         *    suppose we have n instance and k group, output will be k*n
-         */
-        final int num_output_group;
-        /*! \brief reserved parameters */
+        /*! \brief reserved space */
         final int[] reserved;
 
-        ModelParam(ModelReader reader, int num_class) throws IOException {
+        ModelParam(ModelReader reader) throws IOException {
             reader.readUnsignedInt(); // num_feature deprecated
             reader.readInt(); // num_output_group deprecated
-            num_output_group = (num_class == 0) ? 1 : num_class;
             reserved = reader.readIntArray(32);
             reader.readInt(); // read padding
         }
@@ -99,7 +87,7 @@ public class GBLinear extends GBBase {
     }
 
     public int getNumOutputGroup() {
-        return mparam.num_output_group;
+        return num_output_group;
     }
 
 }

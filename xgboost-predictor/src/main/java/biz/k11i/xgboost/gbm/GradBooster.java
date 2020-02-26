@@ -89,9 +89,12 @@ public interface GradBooster extends Serializable {
 abstract class GBBase implements GradBooster {
     protected int num_class;
     protected int num_feature;
+    protected int num_output_group;
 
+    @Override
     public void setNumClass(int numClass) {
         this.num_class = numClass;
+        this.num_output_group = (num_class == 0) ? 1 : num_class;
     }
 
     @Override
