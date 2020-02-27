@@ -11,6 +11,7 @@ import java.io.Serializable;
  * Interface of gradient boosting model.
  */
 public interface GradBooster extends Serializable {
+
     class Factory {
         /**
          * Creates a gradient booster from given name.
@@ -31,7 +32,8 @@ public interface GradBooster extends Serializable {
         }
     }
 
-    void setNumClass(int num_class);
+    void setNumClass(int numClass);
+    void setNumFeature(int numFeature);
 
     /**
      * Loads model from stream.
@@ -86,8 +88,17 @@ public interface GradBooster extends Serializable {
 
 abstract class GBBase implements GradBooster {
     protected int num_class;
+    protected int num_feature;
+    protected int num_output_group;
 
-    public void setNumClass(int num_class) {
-        this.num_class = num_class;
+    @Override
+    public void setNumClass(int numClass) {
+        this.num_class = numClass;
+        this.num_output_group = (num_class == 0) ? 1 : num_class;
+    }
+
+    @Override
+    public void setNumFeature(int numFeature) {
+        this.num_feature = numFeature;
     }
 }

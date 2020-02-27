@@ -41,7 +41,8 @@ subprojects {
     }
 
     task checkJavaVersion << {
-        if (!JavaVersion.current().isJava7()) {
+        def prop = System.getenv('CHECK_JAVA_VERSION');
+        if (prop != "false" && !JavaVersion.current().isJava7()) {
             String message = "ERROR: Java 7 required but " +
                     JavaVersion.current() +
                     " found. Change your JAVA_HOME environment variable."
