@@ -22,7 +22,7 @@ public class ModelReader implements Closeable {
         this(new FileInputStream(filename));
     }
 
-    public ModelReader(InputStream in) throws IOException {
+    public ModelReader(InputStream in) {
         stream = in;
     }
 
