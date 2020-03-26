@@ -17,8 +17,12 @@ public class GBLinear extends GBBase {
     @Override
     public void loadModel(PredictorConfiguration config, ModelReader reader, boolean ignored_with_pbuffer) throws IOException {
         new ModelParam(reader);
-        reader.readInt(); // read padding
-        weights = reader.readFloatArray((num_feature + 1) * num_output_group);
+        long len = reader.readLong();
+        if (len == 0) {
+            weights = new float[(num_feature + 1) * num_output_group];
+        } else {
+            weights = reader.readFloatArray((int) len);
+        }
     }
 
     @Override
@@ -78,7 +82,6 @@ public class GBLinear extends GBBase {
             reader.readUnsignedInt(); // num_feature deprecated
             reader.readInt(); // num_output_group deprecated
             reserved = reader.readIntArray(32);
-            reader.readInt(); // read padding
         }
     }
 
