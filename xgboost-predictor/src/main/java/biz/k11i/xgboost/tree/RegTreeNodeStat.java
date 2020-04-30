@@ -10,14 +10,14 @@ import java.io.Serializable;
  * Statistics each node in tree.
  */
 public class RegTreeNodeStat implements INodeStat, Serializable {
-    /*! \brief loss chg caused by current split */
-    final float loss_chg;
-    /*! \brief sum of hessian values, used to measure coverage of data */
-    final float sum_hess;
-    /*! \brief weight of current node */
-    final float base_weight;
-    /*! \brief number of child that is leaf node known up to now */
-    final int leaf_child_cnt;
+    /** loss chg caused by current split */
+    public final float loss_chg;
+    /** sum of hessian values, used to measure coverage of data */
+    public final float sum_hess;
+    /** weight of current node */
+    public final float base_weight;
+    /** number of child that is leaf node known up to now */
+    public final int leaf_child_cnt;
 
     RegTreeNodeStat(ModelReader reader) throws IOException {
         loss_chg = reader.readFloat();
