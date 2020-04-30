@@ -1,5 +1,6 @@
 package biz.k11i.xgboost.tree;
 
+import ai.h2o.algos.tree.INodeStat;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
