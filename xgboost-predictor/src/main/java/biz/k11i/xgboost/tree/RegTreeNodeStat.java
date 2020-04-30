@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Statistics each node in tree.
  */
-class RegTreeNodeStat implements INodeStat, Serializable {
+public class RegTreeNodeStat implements INodeStat, Serializable {
     /*! \brief loss chg caused by current split */
     final float loss_chg;
     /*! \brief sum of hessian values, used to measure coverage of data */
