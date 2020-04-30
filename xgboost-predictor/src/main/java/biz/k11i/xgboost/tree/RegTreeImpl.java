@@ -11,9 +11,10 @@ import java.io.Serializable;
  * Regression tree.
  */
 public class RegTreeImpl implements RegTree {
+
     private Param param;
     private Node[] nodes;
-    private RTreeNodeStat[] stats;
+    private RegTreeNodeStat[] stats;
 
     /**
      * Loads model from stream.
@@ -29,9 +30,9 @@ public class RegTreeImpl implements RegTree {
             nodes[i] = new Node(reader);
         }
 
-        stats = new RTreeNodeStat[param.num_nodes];
+        stats = new RegTreeNodeStat[param.num_nodes];
         for (int i = 0; i < param.num_nodes; i++) {
-            stats[i] = new RTreeNodeStat(reader);
+            stats[i] = new RegTreeNodeStat(reader);
         }
     }
 
@@ -89,7 +90,8 @@ public class RegTreeImpl implements RegTree {
         return nodes;
     }
 
-    RTreeNodeStat[] getStats() {
+    @Override
+    public RegTreeNodeStat[] getStats() {
         return stats;
     }
 
@@ -216,29 +218,4 @@ public class RegTreeImpl implements RegTree {
         }
     }
 
-    /**
-     * Statistics each node in tree.
-     */
-    static class RTreeNodeStat implements INodeStat, Serializable {
-        /*! \brief loss chg caused by current split */
-        final float loss_chg;
-        /*! \brief sum of hessian values, used to measure coverage of data */
-        final float sum_hess;
-        /*! \brief weight of current node */
-        final float base_weight;
-        /*! \brief number of child that is leaf node known up to now */
-        final int leaf_child_cnt;
-
-        RTreeNodeStat(ModelReader reader) throws IOException {
-            loss_chg = reader.readFloat();
-            sum_hess = reader.readFloat();
-            base_weight = reader.readFloat();
-            leaf_child_cnt = reader.readInt();
-        }
-
-        @Override
-        public float getWeight() {
-            return sum_hess;
-        }
-    }
 }

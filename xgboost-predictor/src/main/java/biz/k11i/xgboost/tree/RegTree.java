@@ -38,6 +38,11 @@ public interface RegTree extends Serializable {
      *
      * @return Tree's nodes
      */
-    public RegTreeNode[] getNodes();
+    RegTreeNode[] getNodes();
+
+    /**
+     * @return Tree's nodes stats
+     */
+    RegTreeNodeStat[] getStats();
 
 }
