@@ -23,10 +23,14 @@ public class RegTreeNodeStat implements INodeStat, Serializable {
         leaf_child_cnt = reader.readInt();
     }
 
+    @Override
+    public float getWeight() {
+        return getCover();
+    }
+
     /**
      * @return loss chg caused by current split
      */
-    @Override
     public float getGain() {
         return loss_chg;
     }
@@ -34,7 +38,6 @@ public class RegTreeNodeStat implements INodeStat, Serializable {
     /**
      * @return sum of hessian values, used to measure coverage of data
      */
-    @Override
     public float getCover() {
         return sum_hess;
     }
@@ -42,7 +45,6 @@ public class RegTreeNodeStat implements INodeStat, Serializable {
     /**
      * @return weight of current node
      */
-    @Override
     public float getBaseWeight() {
         return base_weight;
     }
@@ -50,7 +52,6 @@ public class RegTreeNodeStat implements INodeStat, Serializable {
     /**
      * @return number of child that is leaf node known up to now
      */
-    @Override
     public int getLeafCount() {
         return leaf_child_cnt;
     }
