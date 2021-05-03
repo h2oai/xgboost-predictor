@@ -1,5 +1,25 @@
 # Release notes
 
+## 0.3.18
+
+- Add support for `reg:logistic` and `rank:ndcg` oobjectives. [PR](https://github.com/h2oai/xgboost-predictor/pull/20)
+
+## 0.3.17
+
+- Revert renaming of getWeight. [PR](https://github.com/h2oai/xgboost-predictor/pull/19)
+
+## 0.3.16
+
+- Expose `RegTreeNode` stats. [PR](https://github.com/h2oai/xgboost-predictor/pull/18)
+
+## 0.3.15
+
+- Fix loading an empty gblinear booster [PR](https://github.com/h2oai/xgboost-predictor/pull/16)
+
+## 0.3.14
+
+- Upgrade to XGBoost v1.0.0 support. [PR1](https://github.com/h2oai/xgboost-predictor/pull/14), [PR2](https://github.com/h2oai/xgboost-predictor/pull/15)
+
 ## 0.3.0
 
 - [#27](https://github.com/komiya-atsushi/xgboost-predictor-java/pull/27) Support DART model.
