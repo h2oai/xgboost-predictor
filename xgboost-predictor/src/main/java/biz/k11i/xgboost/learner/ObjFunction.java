@@ -16,7 +16,9 @@ public class ObjFunction implements Serializable {
 
     static {
         register("rank:pairwise", new ObjFunction());
+        register("rank:ndcg", new ObjFunction());
         register("binary:logistic", new RegLossObjLogistic());
+        register("reg:logistic", new RegLossObjLogistic());
         register("binary:logitraw", new ObjFunction());
         register("multi:softmax", new SoftmaxMultiClassObjClassify());
         register("multi:softprob", new SoftmaxMultiClassObjProb());
