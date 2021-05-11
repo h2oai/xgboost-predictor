@@ -119,7 +119,7 @@ Xgboost-predictor-java is about **6,000 to 10,000 times faster than** xgboost4j 
     - "reg:linear"
     - "reg:logistic"
     - "rank:pairwise"
-    - "rank: ndcg"
+    - "rank:ndcg"
 - API
     - Predicts probability or classification
         - `Predictor#predict(FVec)`
