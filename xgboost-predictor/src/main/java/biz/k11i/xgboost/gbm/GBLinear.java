@@ -1,22 +1,6 @@
-/*
-Copyright (C) 2018 HERE Europe B.V.
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may
-not use this file except in compliance with the License. You may obtain a
-copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
-*/
-
 package biz.k11i.xgboost.gbm;
 
+import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
@@ -28,45 +12,44 @@ import java.io.Serializable;
  */
 public class GBLinear extends GBBase {
 
-    private ModelParam mparam;
     private float[] weights;
 
-    GBLinear() {
-        // do nothing
+    @Override
+    public void loadModel(PredictorConfiguration config, ModelReader reader, boolean ignored_with_pbuffer) throws IOException {
+        new ModelParam(reader);
+        long len = reader.readLong();
+        if (len == 0) {
+            weights = new float[(num_feature + 1) * num_output_group];
+        } else {
+            weights = reader.readFloatArray((int) len);
+        }
     }
 
     @Override
-    public void loadModel(ModelReader reader, boolean ignored_with_pbuffer) throws IOException {
-        mparam = new ModelParam(reader);
-        reader.readInt(); // read padding
-        weights = reader.readFloatArray((mparam.num_feature + 1) * mparam.num_output_group);
-    }
-
-    @Override
-    public double[] predict(FVec feat, int ntree_limit) {
-        double[] preds = new double[mparam.num_output_group];
-        for (int gid = 0; gid < mparam.num_output_group; ++gid) {
+    public float[] predict(FVec feat, int ntree_limit) {
+        float[] preds = new float[num_output_group];
+        for (int gid = 0; gid < num_output_group; ++gid) {
             preds[gid] = pred(feat, gid);
         }
         return preds;
     }
 
     @Override
-    public double predictSingle(FVec feat, int ntree_limit) {
-        if (mparam.num_output_group != 1) {
+    public float predictSingle(FVec feat, int ntree_limit) {
+        if (num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
-                            + mparam.num_output_group);
+                            + num_output_group);
         }
         return pred(feat, 0);
     }
 
-    double pred(FVec feat, int gid) {
-        double psum = bias(gid);
-        double featValue;
-        for (int fid = 0; fid < mparam.num_feature; ++fid) {
+    float pred(FVec feat, int gid) {
+        float psum = bias(gid);
+        float featValue;
+        for (int fid = 0; fid < num_feature; ++fid) {
             featValue = feat.fvalue(fid);
-            if (!Double.isNaN(featValue)) {
+            if (!Float.isNaN(featValue)) {
                 psum += featValue * weight(fid, gid);
             }
         }
@@ -79,36 +62,40 @@ public class GBLinear extends GBBase {
     }
 
     @Override
+    public String[] predictLeafPath(FVec feat, int ntree_limit) {
+        throw new UnsupportedOperationException("gblinear does not support predict leaf path");
+    }
+
+    @Override
     public double[][] predictContribution(FVec feat, int ntree_limit) {
         throw new UnsupportedOperationException("gblinear does not support predict feature contribution");
     }
 
-    float weight(int fid, int gid) {
-        return weights[(fid * mparam.num_output_group) + gid];
+    public float weight(int fid, int gid) {
+        return weights[(fid * num_output_group) + gid];
     }
 
-    float bias(int gid) {
-        return weights[(mparam.num_feature * mparam.num_output_group) + gid];
+    public float bias(int gid) {
+        return weights[(num_feature * num_output_group) + gid];
     }
 
     static class ModelParam implements Serializable {
-        /*! \brief number of features */
-        final int num_feature;
-        /*!
-         * \brief how many output group a single instance can produce
-         *  this affects the behavior of number of output we have:
-         *    suppose we have n instance and k group, output will be k*n
-         */
-        final int num_output_group;
-        /*! \brief reserved parameters */
+        /*! \brief reserved space */
         final int[] reserved;
 
         ModelParam(ModelReader reader) throws IOException {
-            num_feature = reader.readInt();
-            num_output_group = reader.readInt();
+            reader.readUnsignedInt(); // num_feature deprecated
+            reader.readInt(); // num_output_group deprecated
             reserved = reader.readIntArray(32);
-            reader.readInt(); // read padding
         }
+    }
+
+    public int getNumFeature() {
+        return num_feature;
+    }
+
+    public int getNumOutputGroup() {
+        return num_output_group;
     }
 
 }

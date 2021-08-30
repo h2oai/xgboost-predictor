@@ -11,15 +11,22 @@ import java.util.Map;
  * Objective function implementations.
  */
 public class ObjFunction implements Serializable {
+
     private static final Map<String, ObjFunction> FUNCTIONS = new HashMap<>();
 
     static {
         register("rank:pairwise", new ObjFunction());
+        register("rank:ndcg", new ObjFunction());
         register("binary:logistic", new RegLossObjLogistic());
+        register("reg:logistic", new RegLossObjLogistic());
         register("binary:logitraw", new ObjFunction());
         register("multi:softmax", new SoftmaxMultiClassObjClassify());
         register("multi:softprob", new SoftmaxMultiClassObjProb());
         register("reg:linear", new ObjFunction());
+        register("reg:squarederror", new ObjFunction());
+        register("reg:gamma", new RegObjFunction());
+        register("reg:tweedie", new RegObjFunction());
+        register("count:poisson", new RegObjFunction());
     }
 
     /**
@@ -70,7 +77,7 @@ public class ObjFunction implements Serializable {
      * @param preds prediction
      * @return transformed values
      */
-    public double[] predTransform(double[] preds) {
+    public float[] predTransform(float[] preds) {
         // do nothing
         return preds;
     }
@@ -81,9 +88,39 @@ public class ObjFunction implements Serializable {
      * @param pred prediction
      * @return transformed value
      */
-    public double predTransform(double pred) {
+    public float predTransform(float pred) {
         // do nothing
         return pred;
+    }
+
+    public float probToMargin(float prob) {
+        // do nothing
+        return prob;
+    }
+
+    /**
+     * Regression.
+     */
+    static class RegObjFunction extends ObjFunction {
+        @Override
+        public float[] predTransform(float[] preds) {
+            if (preds.length != 1)
+                throw new IllegalStateException(
+                    "Regression problem is supposed to have just a single predicted value, got " + preds.length + " instead."
+                );
+            preds[0] = (float) Math.exp(preds[0]);
+            return preds;
+        }
+
+        @Override
+        public float predTransform(float pred) {
+            return (float) Math.exp(pred);
+        }
+
+        @Override
+        public float probToMargin(float prob) {
+            return (float) Math.log(prob);
+        }
     }
 
     /**
@@ -91,7 +128,7 @@ public class ObjFunction implements Serializable {
      */
     static class RegLossObjLogistic extends ObjFunction {
         @Override
-        public double[] predTransform(double[] preds) {
+        public float[] predTransform(float[] preds) {
             for (int i = 0; i < preds.length; i++) {
                 preds[i] = sigmoid(preds[i]);
             }
@@ -99,12 +136,17 @@ public class ObjFunction implements Serializable {
         }
 
         @Override
-        public double predTransform(double pred) {
+        public float predTransform(float pred) {
             return sigmoid(pred);
         }
 
-        double sigmoid(double x) {
-            return (1 / (1 + Math.exp(-x)));
+        float sigmoid(float x) {
+            return (1f / (1f + (float) Math.exp(-x)));
+        }
+
+        @Override
+        public float probToMargin(float prob) {
+            return (float) -Math.log(1.0f / prob - 1.0f);
         }
     }
 
@@ -115,8 +157,9 @@ public class ObjFunction implements Serializable {
      * </p>
      */
     static class RegLossObjLogistic_Jafama extends RegLossObjLogistic {
-        double sigmoid(double x) {
-            return (1 / (1 + FastMath.exp(-x)));
+        @Override
+        float sigmoid(float x) {
+            return (float) (1 / (1 + FastMath.exp(-x)));
         }
     }
 
@@ -125,9 +168,9 @@ public class ObjFunction implements Serializable {
      */
     static class SoftmaxMultiClassObjClassify extends ObjFunction {
         @Override
-        public double[] predTransform(double[] preds) {
+        public float[] predTransform(float[] preds) {
             int maxIndex = 0;
-            double max = preds[0];
+            float max = preds[0];
             for (int i = 1; i < preds.length; i++) {
                 if (max < preds[i]) {
                     maxIndex = i;
@@ -135,11 +178,11 @@ public class ObjFunction implements Serializable {
                 }
             }
 
-            return new double[]{maxIndex};
+            return new float[]{maxIndex};
         }
 
         @Override
-        public double predTransform(double pred) {
+        public float predTransform(float pred) {
             throw new UnsupportedOperationException();
         }
     }
@@ -149,8 +192,8 @@ public class ObjFunction implements Serializable {
      */
     static class SoftmaxMultiClassObjProb extends ObjFunction {
         @Override
-        public double[] predTransform(double[] preds) {
-            double max = preds[0];
+        public float[] predTransform(float[] preds) {
+            float max = preds[0];
             for (int i = 1; i < preds.length; i++) {
                 max = Math.max(preds[i], max);
             }
@@ -169,12 +212,12 @@ public class ObjFunction implements Serializable {
         }
 
         @Override
-        public double predTransform(double pred) {
+        public float predTransform(float pred) {
             throw new UnsupportedOperationException();
         }
 
-        double exp(double x) {
-            return Math.exp(x);
+        float exp(float x) {
+            return (float) Math.exp(x);
         }
     }
 
@@ -186,8 +229,8 @@ public class ObjFunction implements Serializable {
      */
     static class SoftmaxMultiClassObjProb_Jafama extends SoftmaxMultiClassObjProb {
         @Override
-        double exp(double x) {
-            return FastMath.exp(x);
+        float exp(float x) {
+            return (float) FastMath.exp(x);
         }
     }
 }

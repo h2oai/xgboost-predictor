@@ -2,32 +2,36 @@ buildscript {
     repositories {
         jcenter()
     }
+}
 
-    dependencies {
-        classpath 'net.researchgate:gradle-release:2.3.4'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-    }
+plugins {
+    id 'base'
+}
+
+clean.doFirst {
+    delete "${rootDir}/build"
+    println "${rootDir}/build"
 }
 
 subprojects {
+    configurations {
+        publishArchives
+    }
+
     repositories {
         jcenter()
     }
 
     apply plugin: 'java'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'net.researchgate.release'
-    apply plugin: 'com.jfrog.bintray'
 
-    group 'biz.k11i'
+    group 'ai.h2o'
 
-    compileJava {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+    archivesBaseName = project.name
+    if (project.findProperty('archivesNameSuffix')) {
+        archivesBaseName += "-${project.findProperty('archivesNameSuffix')}"
     }
 
-    compileTestJava {
+    compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
@@ -35,6 +39,17 @@ subprojects {
     javadoc {
         options.locale = 'en_US'
     }
+
+    task checkJavaVersion << {
+        def prop = System.getenv('CHECK_JAVA_VERSION');
+        if (prop != "false" && !JavaVersion.current().isJava7()) {
+            String message = "ERROR: Java 7 required but " +
+                    JavaVersion.current() +
+                    " found. Change your JAVA_HOME environment variable."
+            throw new IllegalStateException(message)
+        }
+    }
+    compileJava.dependsOn checkJavaVersion
 
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
@@ -48,58 +63,7 @@ subprojects {
 
     artifacts {
         archives jar
-        archives sourcesJar
-        archives javadocJar
+        publishArchives sourcesJar
+        publishArchives javadocJar
     }
-
-    release {
-        preTagCommitMessage = '[skip ci] [Gradle Release Plugin] - pre tag commit: '
-        newVersionCommitMessage = '[skip ci] [Gradle Release Plugin] - new version commit: '
-        tagTemplate = '$name-$version'
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from components.java
-                artifact sourcesJar
-                artifact javadocJar
-            }
-        }
-    }
-
-    bintray {
-        user = project.hasProperty('bintrayUser') ? bintrayUser : ''
-        key = project.hasProperty('bintrayKey') ? bintrayKey : ''
-        publications = ['maven']
-
-        pkg {
-            repo = 'maven'
-            name = project.name
-            desc = project.description
-            userOrg = 'komiya-atsushi'
-            licenses = ['Apache-2.0']
-
-            websiteUrl = 'https://github.com/komiya-atsushi/xgboost-predictor-java'
-            issueTrackerUrl = 'https://github.com/komiya-atsushi/xgboost-predictor-java/issues'
-            vcsUrl = 'https://github.com/komiya-atsushi/xgboost-predictor-java.git'
-
-            version {
-                name = project.version
-            }
-        }
-    }
-
-    createReleaseTag.dependsOn bintrayUpload
-
-    task checkJavaVersion << {
-        if (!JavaVersion.current().isJava7Compatible()) {
-            String message = "ERROR: Java 7 required but " +
-                    JavaVersion.current() +
-                    " found. Change your JAVA_HOME environment variable."
-            throw new IllegalStateException(message)
-        }
-    }
-
-    compileJava.dependsOn checkJavaVersion
 }

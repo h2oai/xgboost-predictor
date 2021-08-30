@@ -11,3 +11,4 @@ derby.log
 
 tmp/
 
+ci/Dockerfile.tag
