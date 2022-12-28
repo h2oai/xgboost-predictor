@@ -1,14 +1,23 @@
+#MAC File
+**/.DS_Store
+
 # Gradle
 .gradle/
 build/
 
 # IntelliJ IDEA
-.idea/
+### IntelliJ IDEA ###
+.idea
+*.iws
 *.iml
+*.ipr
 
 # Spark
 derby.log
 
-tmp/
+#Maven Project
+.classpath
+.project
+.settings
+target/
 
-ci/Dockerfile.tag

@@ -127,3 +127,11 @@ Xgboost-predictor-java is about **6,000 to 10,000 times faster than** xgboost4j 
         - `Predictor#predict(FVec, true /* output margin */)`
     - Predicts leaf index
         - `Predictor#predictLeaf(FVec)`
+
+
+TODO's:
+1. Should we change pojos to contain float
+2. The modelFilePath should work for both System file path and class resource folder.
+References. : 
+1. https://stackoverflow.com/questions/48011742/xgboost-leaf-scores
+2. https://stackoverflow.com/questions/70586078/manipulation-and-interpretation-of-xgboost-models-in-python
