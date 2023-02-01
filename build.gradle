@@ -45,7 +45,8 @@ subprojects {
         if (prop != "false" && !JavaVersion.current().isJava7()) {
             String message = "ERROR: Java 7 required but " +
                     JavaVersion.current() +
-                    " found. Change your JAVA_HOME environment variable."
+                    " found. Change your JAVA_HOME environment variable. " +
+                    "For local development, you can set environment variable CHECK_JAVA_VERSION=false to bypass the check."
             throw new IllegalStateException(message)
         }
     }
