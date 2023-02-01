@@ -9,7 +9,7 @@ public final class DefaultRegTreeFactory implements RegTreeFactory {
   public static RegTreeFactory INSTANCE = new DefaultRegTreeFactory();
 
   @Override
-  public final RegTree loadTree(ModelReader reader) throws IOException {
+  public RegTree loadTree(int treeId, ModelReader reader) throws IOException {
     RegTreeImpl regTree = new RegTreeImpl();
     regTree.loadModel(reader);
     return regTree;
