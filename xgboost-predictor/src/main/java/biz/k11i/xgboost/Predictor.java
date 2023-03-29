@@ -241,14 +241,34 @@ public class Predictor implements Serializable {
      * @return prediction value
      */
     public float predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
-        float pred = predictSingleRaw(feat, ntree_limit);
+        float pred = predictSingleRaw(feat, base_score, ntree_limit);
         if (!output_margin) {
             pred = obj.predTransform(pred);
         }
         return pred;
     }
 
-    float predictSingleRaw(FVec feat, int ntree_limit) {
+    /**
+     * Generates a prediction for given feature vector, uses user-specified base-margin
+     * instead of model's base-score.
+     * <p>
+     * This method only works when the model outputs single value.
+     * </p>
+     *
+     * @param feat          feature vector
+     * @param base_margin   predict with base margin for each prediction
+     * @param output_margin whether to only predict margin value instead of transformed prediction
+     * @return prediction value
+     */
+    public float predictSingle(FVec feat, float base_margin, boolean output_margin) {
+        float pred = predictSingleRaw(feat, base_margin, 0);
+        if (!output_margin) {
+            pred = obj.predTransform(pred);
+        }
+        return pred;
+    }
+
+    float predictSingleRaw(FVec feat, float base_score, int ntree_limit) {
         return gbm.predictSingle(feat, ntree_limit) + base_score;
     }
 
@@ -347,8 +367,17 @@ public class Predictor implements Serializable {
         return name_obj;
     }
 
+    public ObjFunction getObjective() {
+        return obj;
+    }
+
     public float getBaseScore() {
         return base_score;
+    }
+
+    // for testing/development only
+    void setBaseScore(float base_score) {
+        this.base_score = base_score;
     }
 
 }

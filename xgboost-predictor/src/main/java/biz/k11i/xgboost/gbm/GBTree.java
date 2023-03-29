@@ -24,7 +24,7 @@ public class GBTree extends GBBase {
 
         trees = new RegTree[mparam.num_trees];
         for (int i = 0; i < mparam.num_trees; i++) {
-            trees[i] = config.getRegTreeFactory().loadTree(reader);
+            trees[i] = config.getRegTreeFactory().loadTree(i, reader);
         }
 
         int[] tree_info = mparam.num_trees > 0 ? reader.readIntArray(mparam.num_trees) : new int[0];
