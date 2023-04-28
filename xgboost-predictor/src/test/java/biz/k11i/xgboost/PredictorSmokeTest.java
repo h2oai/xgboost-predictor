@@ -53,8 +53,11 @@ public class PredictorSmokeTest {
          * see: https://github.com/dmlc/xgboost/issues/6350
          * Previous result was 64.41069031f obtained from xgboost version 1.2.0
          */
+        float previousExpected = 64.41069031f;
         float expected = 64.41068268f;
 
+        Assert.assertNotEquals(previousExpected, prediction[0], 0);
+        Assert.assertNotEquals(previousExpected, predictionSingle, 0);
         Assert.assertEquals(1, prediction.length);
         Assert.assertEquals(expected, prediction[0], 0);
         Assert.assertEquals(expected, predictionSingle, 0);
