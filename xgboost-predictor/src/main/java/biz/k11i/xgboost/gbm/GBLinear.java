@@ -26,7 +26,7 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public float[] predict(FVec feat, int ntree_limit) {
+    public float[] predict(FVec feat, int ntree_limit, float base_score) {
         float[] preds = new float[num_output_group];
         for (int gid = 0; gid < num_output_group; ++gid) {
             preds[gid] = pred(feat, gid);
@@ -35,7 +35,7 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public float predictSingle(FVec feat, int ntree_limit) {
+    public float predictSingle(FVec feat, int ntree_limit, float base_score) {
         if (num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "

@@ -52,7 +52,7 @@ public interface GradBooster extends Serializable {
      * @param ntree_limit limit the number of trees used in prediction
      * @return prediction result
      */
-    float[] predict(FVec feat, int ntree_limit);
+    float[] predict(FVec feat, int ntree_limit, float base_score);
 
     /**
      * Generates a prediction for given feature vector.
@@ -64,7 +64,7 @@ public interface GradBooster extends Serializable {
      * @param ntree_limit limit the number of trees used in prediction
      * @return prediction result
      */
-    float predictSingle(FVec feat, int ntree_limit);
+    float predictSingle(FVec feat, int ntree_limit, float base_score);
 
     /**
      * Predicts the leaf index of each tree. This is only valid in gbtree predictor.

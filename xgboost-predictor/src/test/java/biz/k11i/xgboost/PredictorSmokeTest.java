@@ -40,6 +40,38 @@ public class PredictorSmokeTest {
         Assert.assertEquals(expected, predictionSingle3, 0);
     }
 
+    @Test
+    public void shouldProvideDifferentPredictionPrecisionDueTheFloatingPointError() {
+        float[] rowData = new float[] { 15.2f, 0};
+        FVec row = FVec.Transformer.fromArray(rowData, false);
+        float[] prediction = predictor.predict(row);
+        float predictionSingle = predictor.predictSingle(row);
+
+        /*
+         * obtained from xgboost version 1.3.0 and newer (Current upper bound is 1.6.1)
+         * Difference is due the different sequence of floating point addition
+         * see: https://github.com/dmlc/xgboost/issues/6350
+         * Previous result was 64.41069031f obtained from xgboost version 1.2.0
+         */
+        float expected = 64.41068268f;
+
+        Assert.assertEquals(1, prediction.length);
+        Assert.assertEquals(expected, prediction[0], 0);
+        Assert.assertEquals(expected, predictionSingle, 0);
+    }
+
+    @Test
+    public void shouldProvidePredictionWithCustomBaseMargin() {
+        float[] rowData = new float[] { 13.2f, 23.6f};
+        FVec row = FVec.Transformer.fromArray(rowData, false);
+        float[] prediction = predictor.predict(row);
+        float[] predictionWithCustomBaseMargin = predictor.predict(row, predictor.getBaseScore() + 0.2f);
+
+        Assert.assertEquals(1, prediction.length);
+        Assert.assertEquals(1, predictionWithCustomBaseMargin.length);
+        Assert.assertEquals(prediction[0] + 0.2f, predictionWithCustomBaseMargin[0], 0);
+    }
+
     //TODO add test that each parameter in each GradBooster implementation works properly
     //TODO add test for multivariate prediction
 }
