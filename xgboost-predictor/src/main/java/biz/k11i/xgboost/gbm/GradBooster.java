@@ -50,6 +50,7 @@ public interface GradBooster extends Serializable {
      *
      * @param feat        feature vector
      * @param ntree_limit limit the number of trees used in prediction
+     * @param base_score base score to initialize prediction
      * @return prediction result
      */
     float[] predict(FVec feat, int ntree_limit, float base_score);
@@ -62,6 +63,7 @@ public interface GradBooster extends Serializable {
      *
      * @param feat        feature vector
      * @param ntree_limit limit the number of trees used in prediction
+     * @param base_score base score to initialize prediction
      * @return prediction result
      */
     float predictSingle(FVec feat, int ntree_limit, float base_score);
