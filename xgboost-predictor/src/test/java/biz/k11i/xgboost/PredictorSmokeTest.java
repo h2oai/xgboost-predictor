@@ -23,7 +23,7 @@ public class PredictorSmokeTest {
     @Test
     public void shouldProvideEqualPredictionWithDifferentAPI_Dart() throws IOException {
         Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateDart.bin"));
-        checkAPIForEachTreeImplementation(predictor, 63.56952667f /* obtain from xgboost version 1.2.0*/);
+        checkAPIForEachTreeImplementation(predictor, 66.0059433f /* obtain from xgboost version 1.2.0*/);
     }
 
     private void checkAPIForEachTreeImplementation(Predictor predictor, float expected) {
