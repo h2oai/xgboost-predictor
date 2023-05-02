@@ -14,7 +14,7 @@ data = pandas.read_csv("prostate54-2.csv")
 y_train = data["AGE"]
 X_train = data[["PSA", "VOL"]]
 # create model instance
-bst = XGBRegressor(n_estimators=8, max_depth=5, learning_rate=0.3, objective='reg:squarederror', seed=847020, booster="gbtree")
+bst = XGBRegressor(n_estimators=8, max_depth=5, learning_rate=0.3, objective='reg:squarederror', seed=847020, booster="gbtree") # booster=dart, booster=gblinear
 # fit model
 bst.fit(X_train, y_train)
 bst.save_model("boosterBytesProstate.bin")

@@ -2,20 +2,31 @@ package biz.k11i.xgboost;
 
 import biz.k11i.xgboost.util.FVec;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
 
 public class PredictorSmokeTest {
 
-    private Predictor predictor;
-
-    @Before
-    public void setup() throws Exception {
-        predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstate.bin"));
+    @Test
+    public void shouldProvideEqualPredictionWithDifferentAPI_GBTree() throws IOException {
+        Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateTree.bin"));
+        checkAPIForEachTreeImplementation(predictor, 63.56952667f /* obtain from xgboost version 1.2.0*/);
     }
 
     @Test
-    public void shouldProvideEqualPredictionWithDifferentAPI() {
+    public void shouldProvideEqualPredictionWithDifferentAPI_GBLinear() throws IOException {
+        Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateLinear.bin"));
+        checkAPIForEachTreeImplementation(predictor, 61.912136f /* obtain from xgboost version 1.2.0*/);
+    }
+
+    @Test
+    public void shouldProvideEqualPredictionWithDifferentAPI_Dart() throws IOException {
+        Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateDart.bin"));
+        checkAPIForEachTreeImplementation(predictor, 63.56952667f /* obtain from xgboost version 1.2.0*/);
+    }
+
+    private void checkAPIForEachTreeImplementation(Predictor predictor, float expected) {
         float[] rowData = new float[] { 13.2f, 23.6f};
         FVec row = FVec.Transformer.fromArray(rowData, false);
         float[] prediction = predictor.predict(row);
@@ -26,8 +37,6 @@ public class PredictorSmokeTest {
         float predictionSingle = predictor.predictSingle(row);
         float predictionSingle2 = predictor.predictSingle(row, false);
         float predictionSingle3 = predictor.predictSingle(row, false, 0);
-
-        float expected = 63.56952667f; // obtain from xgboost version 1.2.0
 
         Assert.assertEquals(1, prediction.length);
         Assert.assertEquals(expected, prediction[0], 0);
@@ -41,7 +50,8 @@ public class PredictorSmokeTest {
     }
 
     @Test
-    public void shouldProvideDifferentPredictionPrecisionDueTheFloatingPointError() {
+    public void shouldProvideDifferentPredictionPrecisionDueTheFloatingPointError() throws IOException {
+        Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateTree.bin"));
         float[] rowData = new float[] { 15.2f, 0};
         FVec row = FVec.Transformer.fromArray(rowData, false);
         float[] prediction = predictor.predict(row);
@@ -64,7 +74,8 @@ public class PredictorSmokeTest {
     }
 
     @Test
-    public void shouldProvidePredictionWithCustomBaseMargin() {
+    public void shouldProvidePredictionWithCustomBaseMargin() throws IOException {
+        Predictor predictor = new Predictor(getClass().getResourceAsStream("/prostate/boosterBytesProstateTree.bin"));
         float[] rowData = new float[] { 13.2f, 23.6f};
         FVec row = FVec.Transformer.fromArray(rowData, false);
         float[] prediction = predictor.predict(row);
