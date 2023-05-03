@@ -7,6 +7,7 @@ import biz.k11i.xgboost.util.ModelReader;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Gradient boosted tree implementation.
@@ -55,33 +56,32 @@ public class GBTree extends GBBase {
     }
 
     @Override
-    public float[] predict(FVec feat, int ntree_limit) {
+    public float[] predict(FVec feat, int ntree_limit, float base_score) {
         float[] preds = new float[num_output_group];
         for (int gid = 0; gid < num_output_group; gid++) {
-            preds[gid] = pred(feat, gid, 0, ntree_limit);
+            preds[gid] += pred(feat, gid, 0, ntree_limit, base_score);
         }
         return preds;
     }
 
     @Override
-    public float predictSingle(FVec feat, int ntree_limit) {
+    public float predictSingle(FVec feat, int ntree_limit, float base_score) {
         if (num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
                     + num_output_group);
         }
-        return pred(feat, 0, 0, ntree_limit);
+        return pred(feat, 0, 0, ntree_limit, base_score);
     }
 
-    float pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
+    float pred(FVec feat, int bst_group, int root_index, int ntree_limit, float base_score) {
         RegTree[] trees = _groupTrees[bst_group];
         int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
 
-        float psum = 0;
+        float psum = base_score;
         for (int i = 0; i < treeleft; i++) {
             psum += trees[i].getLeafValue(feat, root_index);
         }
-
         return psum;
     }
 

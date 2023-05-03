@@ -10,6 +10,7 @@ import biz.k11i.xgboost.util.ModelReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Predicts using the Xgboost model.
@@ -173,7 +174,7 @@ public class Predictor implements Serializable {
      * @return prediction values
      */
     public float[] predict(FVec feat, float base_margin, int ntree_limit) {
-        float[] preds = predictRaw(feat, base_margin, ntree_limit);
+        float[] preds = gbm.predict(feat, ntree_limit, base_margin);
         preds = obj.predTransform(preds);
         return preds;
     }
@@ -187,17 +188,9 @@ public class Predictor implements Serializable {
      * @return prediction values
      */
     public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        float[] preds = predictRaw(feat, base_score, ntree_limit);
+        float[] preds = gbm.predict(feat, ntree_limit, base_score);
         if (! output_margin) {
             preds = obj.predTransform(preds);
-        }
-        return preds;
-    }
-
-    float[] predictRaw(FVec feat, float base_score, int ntree_limit) {
-        float[] preds = gbm.predict(feat, ntree_limit);
-        for (int i = 0; i < preds.length; i++) {
-            preds[i] += base_score;
         }
         return preds;
     }
@@ -241,15 +234,11 @@ public class Predictor implements Serializable {
      * @return prediction value
      */
     public float predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
-        float pred = predictSingleRaw(feat, ntree_limit);
+        float pred = gbm.predictSingle(feat, ntree_limit, base_score);
         if (!output_margin) {
             pred = obj.predTransform(pred);
         }
         return pred;
-    }
-
-    float predictSingleRaw(FVec feat, int ntree_limit) {
-        return gbm.predictSingle(feat, ntree_limit) + base_score;
     }
 
     /**

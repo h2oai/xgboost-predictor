@@ -6,6 +6,7 @@ import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Gradient boosted DART tree implementation.
@@ -26,11 +27,12 @@ public class Dart extends GBTree {
         }
     }
 
-    float pred(FVec feat, int bst_group, int root_index, int ntree_limit) {
+    @Override
+    float pred(FVec feat, int bst_group, int root_index, int ntree_limit, float base_score) {
         RegTree[] trees = _groupTrees[bst_group];
         int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
 
-        float psum = 0;
+        float psum = base_score;
         for (int i = 0; i < treeleft; i++) {
             psum += weightDrop[i] * trees[i].getLeafValue(feat, root_index);
         }

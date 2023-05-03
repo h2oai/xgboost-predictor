@@ -1,0 +1,20 @@
+boosterBytesProstate.bin was taken from MOJO of the test XGBoostTest.ProstateRegressionSmall() in H2O-3 repository but can be also obtained by this python code
+
+!pip install xgboost==1.6.1
+!pip install scikit-learn
+!pip install pandas
+!wget "https://h2o-public-test-data.s3.amazonaws.com/smalldata/prostate/prostate54-2.csv"
+
+import xgboost as xgb
+from xgboost import XGBRegressor
+import sklearn
+import pandas
+
+data = pandas.read_csv("prostate54-2.csv")
+y_train = data["AGE"]
+X_train = data[["PSA", "VOL"]]
+# create model instance
+bst = XGBRegressor(n_estimators=20, max_depth=5, learning_rate=0.3, objective='reg:squarederror', seed=847020, booster="dart", rate_drop=0.1)
+# fit model
+bst.fit(X_train, y_train)
+bst.save_model("boosterBytesProstate.bin")

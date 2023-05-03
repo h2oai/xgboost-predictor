@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.3.19
+
+- Change the order of the floating point operation to match prediction in native xgboost version 1.3.0 and newer [PR](https://github.com/h2oai/xgboost-predictor/pull/27)
+
 ## 0.3.18
 
 - Add support for `reg:logistic` and `rank:ndcg` oobjectives. [PR](https://github.com/h2oai/xgboost-predictor/pull/20)

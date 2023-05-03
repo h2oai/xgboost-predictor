@@ -26,26 +26,26 @@ public class GBLinear extends GBBase {
     }
 
     @Override
-    public float[] predict(FVec feat, int ntree_limit) {
+    public float[] predict(FVec feat, int ntree_limit, float base_score) {
         float[] preds = new float[num_output_group];
         for (int gid = 0; gid < num_output_group; ++gid) {
-            preds[gid] = pred(feat, gid);
+            preds[gid] = pred(feat, gid, base_score);
         }
         return preds;
     }
 
     @Override
-    public float predictSingle(FVec feat, int ntree_limit) {
+    public float predictSingle(FVec feat, int ntree_limit, float base_score) {
         if (num_output_group != 1) {
             throw new IllegalStateException(
                     "Can't invoke predictSingle() because this model outputs multiple values: "
                             + num_output_group);
         }
-        return pred(feat, 0);
+        return pred(feat, 0, base_score);
     }
 
-    float pred(FVec feat, int gid) {
-        float psum = bias(gid);
+    float pred(FVec feat, int gid, float base_score) {
+        float psum = bias(gid) + base_score;
         float featValue;
         for (int fid = 0; fid < num_feature; ++fid) {
             featValue = feat.fvalue(fid);
