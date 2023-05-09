@@ -66,12 +66,6 @@ publish_in_docker: ci/Dockerfile.tag
 ifeq ($(SECRING_PATH),)
 	$(error SECRING_PATH must be set.)
 endif
-ifeq ($(NEXUS_USERNAME),)
-	$(error NEXUS_USERNAME must be set.)
-endif
-ifeq ($(NEXUS_PASSWORD),)
-	$(error NEXUS_PASSWORD must be set.)
-endif
 	docker run --rm \
 		-u jenkins:jenkins \
 		-v `pwd`:/workspace \
