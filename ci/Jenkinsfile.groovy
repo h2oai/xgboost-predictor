@@ -60,7 +60,7 @@ node ('master') {
             } else {
                 error "Cannot find credentials for targetNexus=${params.targetNexus}"
             }
-            withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
+            withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: "${credentialsId}_USERNAME", passwordVariable: "${credentialsId}_PASSWORD"),
                 file(credentialsId: 'release-secret-key-ring-file', variable: 'SECRING_PATH')]) {
                 sh "make ${makeOpts} TARGET_NEXUS=${params.targetNexus} DO_SIGN=true -f ci/Makefile publish_in_docker"
             }
