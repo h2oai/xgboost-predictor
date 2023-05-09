@@ -67,18 +67,10 @@ ifeq ($(SECRING_PATH),)
 	$(error SECRING_PATH must be set.)
 endif
 ifeq ($(NEXUS_USERNAME),)
-	ifeq ($(PUBLIC_NEXUS_USERNAME),)
-		$(error NEXUS_USERNAME or PUBLIC_NEXUS_USERNAME must be set.)
-	else
-		NEXUS_USERNAME := $(PUBLIC_NEXUS_USERNAME)
-	endif
+	$(error NEXUS_USERNAME must be set.)
 endif
 ifeq ($(NEXUS_PASSWORD),)
-	ifeq ($(PUBLIC_NEXUS_PASSWORD),)
-		$(error NEXUS_PASSWORD or PUBLIC_NEXUS_PASSWORD must be set.)
-	else
-		NEXUS_PASSWORD := $(PUBLIC_NEXUS_PASSWORD)
-	endif
+	$(error NEXUS_PASSWORD must be set.)
 endif
 	docker run --rm \
 		-u jenkins:jenkins \
