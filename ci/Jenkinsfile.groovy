@@ -53,14 +53,20 @@ node ('master') {
     if (params.targetNexus == 'private' || params.targetNexus == 'public') {
         buildSummary.stageWithSummary("Publish to ${params.targetNexus.capitalize()} Nexus") {
             def credentialsId
+            def usernameVariable
+            def passwordVariable
             if (params.targetNexus == 'private') {
                 credentialsId = 'LOCAL_NEXUS'
+                usernameVariable = 'NEXUS_USERNAME'
+                passwordVariable = 'NEXUS_PASSWORD'
             } else if (params.targetNexus == 'public') {
                 credentialsId = 'PUBLIC_NEXUS'
+                usernameVariable = 'PUBLIC_NEXUS_USERNAME'
+                passwordVariable = 'PUBLIC_NEXUS_PASSWORD'
             } else {
                 error "Cannot find credentials for targetNexus=${params.targetNexus}"
             }
-            withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: "${credentialsId}_USERNAME", passwordVariable: "${credentialsId}_PASSWORD"),
+            withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: usernameVariable, passwordVariable: passwordVariable),
                 file(credentialsId: 'release-secret-key-ring-file', variable: 'SECRING_PATH')]) {
                 sh "make ${makeOpts} TARGET_NEXUS=${params.targetNexus} DO_SIGN=true -f ci/Makefile publish_in_docker"
             }

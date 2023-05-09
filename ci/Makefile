@@ -43,7 +43,7 @@ endif
 ifneq ($(ARCHIVES_NAME_SUFFIX),)
 	$(eval NAME_SUFFIX_FLAG := -ParchivesNameSuffix=$(ARCHIVES_NAME_SUFFIX))
 endif
-	./gradlew publish $(NAME_SUFFIX_FLAG) -PtargetNexus=$(TARGET_NEXUS) $(SIGN_FLAG) -PnexusUsername=$(PUBLIC_NEXUS_USERNAME) -PnexusPassword=$(PUBLIC_NEXUS_PASSWORD)
+	./gradlew publish $(NAME_SUFFIX_FLAG) -PtargetNexus=$(TARGET_NEXUS) $(SIGN_FLAG) -PnexusUsername=$(NEXUS_USERNAME) -PnexusPassword=$(NEXUS_PASSWORD)
 
 clean_build: clean build
 
@@ -66,6 +66,20 @@ publish_in_docker: ci/Dockerfile.tag
 ifeq ($(SECRING_PATH),)
 	$(error SECRING_PATH must be set.)
 endif
+ifeq ($(NEXUS_USERNAME),)
+	ifeq ($(PUBLIC_NEXUS_USERNAME),)
+		$(error NEXUS_USERNAME or PUBLIC_NEXUS_USERNAME must be set.)
+	else
+		NEXUS_USERNAME := $(PUBLIC_NEXUS_USERNAME)
+	endif
+endif
+ifeq ($(NEXUS_PASSWORD),)
+	ifeq ($(PUBLIC_NEXUS_PASSWORD),)
+		$(error NEXUS_PASSWORD or PUBLIC_NEXUS_PASSWORD must be set.)
+	else
+		NEXUS_PASSWORD := $(PUBLIC_NEXUS_PASSWORD)
+	endif
+endif
 	docker run --rm \
 		-u jenkins:jenkins \
 		-v `pwd`:/workspace \
@@ -73,8 +87,8 @@ endif
 		-w /workspace \
 		--entrypoint /bin/bash \
 		--add-host=nexus:172.17.0.53 \
-		-e NEXUS_USERNAME=$(PUBLIC_NEXUS_USERNAME) \
-		-e NEXUS_PASSWORD=$(PUBLIC_NEXUS_PASSWORD) \
+		-e NEXUS_USERNAME=$(NEXUS_USERNAME) \
+		-e NEXUS_PASSWORD=$(NEXUS_PASSWORD) \
 		$(DOCKER_ARGS) \
 		$(DOCKER_IMAGE) \
 		-c "gpg --import /secring.gpg && \
