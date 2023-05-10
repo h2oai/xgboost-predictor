@@ -40,13 +40,15 @@ subprojects {
         options.locale = 'en_US'
     }
 
-    task checkJavaVersion << {
-        def prop = System.getenv('CHECK_JAVA_VERSION');
-        if (prop != "false" && !JavaVersion.current().isJava7()) {
-            String message = "ERROR: Java 7 required but " +
-                    JavaVersion.current() +
-                    " found. Change your JAVA_HOME environment variable."
-            throw new IllegalStateException(message)
+    task checkJavaVersion {
+        doLast {
+            def prop = System.getenv('CHECK_JAVA_VERSION');
+            if (prop != "false" && !JavaVersion.current().isJava7()) {
+                String message = "ERROR: Java 7 required but " +
+                        JavaVersion.current() +
+                        " found. Change your JAVA_HOME environment variable."
+                throw new IllegalStateException(message)
+            }
         }
     }
     compileJava.dependsOn checkJavaVersion
