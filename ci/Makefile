@@ -43,7 +43,7 @@ endif
 ifneq ($(ARCHIVES_NAME_SUFFIX),)
 	$(eval NAME_SUFFIX_FLAG := -ParchivesNameSuffix=$(ARCHIVES_NAME_SUFFIX))
 endif
-	./gradlew publish $(NAME_SUFFIX_FLAG) -PtargetNexus=$(TARGET_NEXUS) $(SIGN_FLAG) -PnexusUsername=$(NEXUS_USERNAME) -PnexusPassword=$(NEXUS_PASSWORD)
+	./gradlew publish $(NAME_SUFFIX_FLAG) -PtargetNexus=$(TARGET_NEXUS) $(SIGN_FLAG) -PnexusUsername=$(NEXUS_USERNAME) -PnexusPassword=$(NEXUS_PASSWORD) --stacktrace
 
 clean_build: clean build
 
@@ -63,9 +63,6 @@ ci/Dockerfile.tag: ci/Dockerfile
 		.
 
 publish_in_docker: ci/Dockerfile.tag
-ifeq ($(SECRING_PATH),)
-	$(error SECRING_PATH must be set.)
-endif
 ifeq ($(NEXUS_USERNAME),)
 	$(error NEXUS_USERNAME must be set.)
 endif
@@ -75,7 +72,6 @@ endif
 	docker run --rm \
 		-u jenkins:jenkins \
 		-v `pwd`:/workspace \
-		-v $(SECRING_PATH):/secring.gpg:ro \
 		-w /workspace \
 		--entrypoint /bin/bash \
 		--add-host=nexus:172.17.0.53 \
@@ -83,8 +79,7 @@ endif
 		-e NEXUS_PASSWORD=$(NEXUS_PASSWORD) \
 		$(DOCKER_ARGS) \
 		$(DOCKER_IMAGE) \
-		-c "gpg --import /secring.gpg && \
-			make -f ci/Makefile publish"
+		-c "make -f ci/Makefile publish"
 
 %_in_docker: ci/Dockerfile.tag
 	docker run --rm \
@@ -95,3 +90,15 @@ endif
 		$(DOCKER_ARGS) \
 		$(DOCKER_IMAGE) \
 		-c "make -f ci/Makefile $*"
+
+run_in_docker: ci/Dockerfile.tag
+	docker run --rm -it \
+		-u $(UID):$(GID) \
+		-v `pwd`:/workspace \
+		-w /workspace \
+		--entrypoint /bin/bash \
+		--add-host=nexus:172.17.0.53 \
+		-e NEXUS_USERNAME=$(NEXUS_USERNAME) \
+		-e NEXUS_PASSWORD=$(NEXUS_PASSWORD) \
+		$(DOCKER_ARGS) \
+		$(DOCKER_IMAGE)
