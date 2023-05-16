@@ -13,13 +13,13 @@ RUN \
     groupadd -g 2117 jenkins && \
     useradd jenkins -m -u 2117 -g jenkins
 
-COPY ci/jdk1.7.0_80.zip /usr/opt/
+COPY ci/zulu7.56.0.11-ca-jdk7.0.352-linux_x64.zip /usr/opt/
 RUN cd /usr/opt && \
-    unzip -q jdk1.7.0_80.zip && \
-    rm -rf jdk1.7.0_80.zip
+    unzip -q zulu7.56.0.11-ca-jdk7.0.352-linux_x64.zip && \
+    rm -rf zulu7.56.0.11-ca-jdk7.0.352-linux_x64.zip
 
-ENV JAVA_HOME=/usr/opt/jdk1.7.0_80
-ENV PATH=${PATH}:/usr/opt/jdk1.7.0_80/bin
+ENV JAVA_HOME=/usr/opt/zulu7.56.0.11-ca-jdk7.0.352-linux_x64
+ENV PATH=${PATH}:/usr/opt/zulu7.56.0.11-ca-jdk7.0.352-linux_x64/bin
 
 RUN mkdir /gradle-home && \
     chmod a+w /gradle-home
