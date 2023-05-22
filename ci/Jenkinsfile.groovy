@@ -38,7 +38,7 @@ node ('master') {
                 docker.image('harbor.h2o.ai/opsh2oai/s3cmd').inside("-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}") {
                 sh """
                     cd ci
-                    s3cmd get s3://artifacts.h2o.ai/releases/zulu/zulu7.56.0.11-ca-jdk7.0.352-linux_x64.zip
+                    s3cmd get s3://artifacts.h2o.ai/releases/oracle/jdk-7/x64-linux/jdk1.7.0_80.zip
                 """
             }
         }
