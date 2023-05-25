@@ -1,4 +1,5 @@
-boosterBytesProstate.bin was taken from MOJO of the test XGBoostTest.ProstateRegressionSmall() in H2O-3 repository but can be also obtained by this python code
+boosterBytesProstateTree.bin and boosterBytesProstateLinear.bin was taken from MOJO of the test XGBoostTest.ProstateRegressionSmall() in H2O-3 repository but can be also obtained by this python code
+boosterBytesProstateTreeVersion12.bin is the same as boosterBytesProstateTree.bin but version is manually change in the binary editor
 
 !pip install xgboost==1.6.1
 !pip install scikit-learn

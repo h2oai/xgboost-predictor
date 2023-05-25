@@ -174,7 +174,7 @@ public class Predictor implements Serializable {
      * @return prediction values
      */
     public float[] predict(FVec feat, float base_margin, int ntree_limit) {
-        float[] preds = gbm.predict(feat, ntree_limit, base_margin);
+        float[] preds = predictRaw(feat, ntree_limit, base_margin);
         preds = obj.predTransform(preds);
         return preds;
     }
@@ -188,11 +188,24 @@ public class Predictor implements Serializable {
      * @return prediction values
      */
     public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        float[] preds = gbm.predict(feat, ntree_limit, base_score);
+        float[] preds = predictRaw(feat, ntree_limit, base_score);
         if (! output_margin) {
             preds = obj.predTransform(preds);
         }
         return preds;
+    }
+
+    float[] predictRaw(FVec feat, int ntree_limit, float base_score) {
+        if (isBeforeOrEqual12()) {
+            float[] preds = gbm.predict(feat, ntree_limit, 0 /* intentionally use 0 and add base score after to have the same floating point order of operation */);
+            for (int i = 0; i < preds.length; i++) {
+                preds[i] += base_score;
+            }
+            return preds;
+        } else {
+            // Since xgboost 1.3 the floating point operations order has changed  - add base_score as first and predictions after
+            return gbm.predict(feat, ntree_limit, base_score);
+        }
     }
 
     /**
@@ -234,11 +247,19 @@ public class Predictor implements Serializable {
      * @return prediction value
      */
     public float predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
-        float pred = gbm.predictSingle(feat, ntree_limit, base_score);
+        float pred = predictSingleRaw(feat, ntree_limit);
         if (!output_margin) {
             pred = obj.predTransform(pred);
         }
         return pred;
+    }
+
+    float predictSingleRaw(FVec feat, int ntree_limit) {
+        if (isBeforeOrEqual12()) {
+            return gbm.predictSingle(feat, ntree_limit, 0) + base_score;
+        } else {
+            return gbm.predictSingle(feat, ntree_limit, base_score);
+        }
     }
 
     /**
@@ -294,6 +315,15 @@ public class Predictor implements Serializable {
      */
     public int getNumClass() {
         return mparam.num_class;
+    }
+
+    /**
+     * Used e.g. for the change od floating point operation order in between xgboost 1.2 and 1.3
+     *
+     * @return True if the booster was build with xgboost version <= 1.2.
+     */
+    private boolean isBeforeOrEqual12() {
+        return mparam.major_version < 1 || (mparam.major_version == 1 && mparam.minor_version <= 2);
     }
 
     /**
