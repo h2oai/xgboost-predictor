@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.3.20
+
+- Make the fix in [PR](https://github.com/h2oai/xgboost-predictor/pull/27) backwards compatible in order to use it in H2O-3 and provide same predictions for older MOJOs and pass the compatibility test. [PR](https://github.com/h2oai/xgboost-predictor/pull/28)
+
 ## 0.3.19
 
 - Change the order of the floating point operation to match prediction in native xgboost version 1.3.0 and newer [PR](https://github.com/h2oai/xgboost-predictor/pull/27)
