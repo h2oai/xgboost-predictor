@@ -69,8 +69,8 @@ publishing {
                     developerConnection = 'scm:git:git@github.com:h2oai/xgboost-predictor.git'
                 }
                 issueManagement {
-                    system = 'Jira'
-                    url = 'http://jira.h2o.ai'
+                    system 'GitHub issues'
+                    url    'https://github.com/h2oai/h2o-3/issues'
                 }
                 developers {
                     developer {
