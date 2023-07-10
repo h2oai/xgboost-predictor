@@ -304,6 +304,28 @@ public class Predictor implements Serializable {
         return gbm.predictLeafPath(feat, ntree_limit);
     }
 
+    /**
+     * Predicts feature contribution of each tree.
+     *
+     * @param feat feature vector
+     * @return leaf indexes
+     */
+    public double[][] predictContribution(FVec feat) {
+        return predictContribution(feat, 0);
+    }
+
+    /**
+     * Predicts feature contribution of each tree.
+     *
+     * @param feat        feature vector
+     * @param ntree_limit limit
+     * @return leaf indexes
+     */
+    public double[][] predictContribution(FVec feat,
+                                          int ntree_limit) {
+        return gbm.predictContribution(feat, ntree_limit);
+    }
+
     public SparkModelParam getSparkModelParam() {
         return sparkModelParam;
     }

@@ -2,6 +2,7 @@ package biz.k11i.xgboost.gbm;
 
 import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.tree.RegTree;
+import biz.k11i.xgboost.tree.RegTreeImpl;
 import biz.k11i.xgboost.util.FVec;
 import biz.k11i.xgboost.util.ModelReader;
 
@@ -112,13 +113,61 @@ public class GBTree extends GBBase {
         return num_output_group * mparam.num_pbuffer * (mparam.size_leaf_vector + 1);
     }
 
+    /**
+     * Predict contributions for all classes for given number of trees
+     * @param feat        feature vector
+     * @param ntree_limit limit the number of trees used in prediction
+     * @return array with feature weights (nFeatures + 1 wide) where right-most column is the sum
+     */
+    public double[][] predictContribution(FVec feat, int ntree_limit) {
+        // need to do seperate predictions for each group (class) in the classifier
+        double[][] preds = new double[mparam.num_output_group][mparam.num_feature+1];
+        for (int gid = 0; gid < mparam.num_output_group; gid++) {
+            // each class is predicted independently
+            double[] contrib = calculateContributions(feat, gid, 0, ntree_limit);
+            System.arraycopy(contrib, 0, preds[gid], 0, contrib.length);
+        }
+        return preds;
+    }
+
+    /**
+     * Calculate the contribution of a given class for a given number of trees
+     * @param feat          feature vector
+     * @param bst_group     class group
+     * @param root_index    tree root index
+     * @param ntree_limit   number of trees limit
+     * @return array with feature weights (nFeatures + 1 wide) where right-most column is the sum
+     */
+    private double[] calculateContributions(FVec feat, int bst_group, int root_index, int ntree_limit) {
+        RegTreeImpl[] trees = (RegTreeImpl[]) _groupTrees[bst_group];
+        int treeleft = ntree_limit == 0 ? trees.length : ntree_limit;
+
+        double[] psum = new double[mparam.num_feature+1];
+        for (int i = 0; i < treeleft; i++) {
+            double[] contrib = trees[i].getFeatureContributions(feat, root_index);
+            for (int j = 0; j < contrib.length; j++) {
+                psum[j] += contrib[j];
+            }
+        }
+
+        return psum;
+    }
+
     static class ModelParam implements Serializable {
         /*! \brief number of trees */
         final int num_trees;
         /*! \brief number of root: default 0, means single tree */
         final int num_roots;
+        /*! \brief nnumber of features to be used by trees */
+        final int num_feature;
         /*! \brief size of predicton buffer allocated used for buffering */
         final long num_pbuffer;
+        /*!
+         * \brief how many output group a single instance can produce
+         *  this affects the behavior of number of output we have:
+         *    suppose we have n instance and k group, output will be k*n
+         */
+        final int num_output_group;
         /*! \brief size of leaf vector needed in tree */
         final int size_leaf_vector;
         /*! \brief reserved space */
@@ -127,10 +176,10 @@ public class GBTree extends GBBase {
         ModelParam(ModelReader reader) throws IOException {
             num_trees = reader.readInt();
             num_roots = reader.readInt();
-            reader.readInt(); // num_feature deprecated
+            num_feature = reader.readInt();
             reader.readInt(); // read padding
             num_pbuffer = reader.readLong();
-            reader.readInt(); // num_output_group not used anymore
+            num_output_group = reader.readInt();
             size_leaf_vector = reader.readInt();
             reserved = reader.readIntArray(31);
             reader.readInt(); // read padding
